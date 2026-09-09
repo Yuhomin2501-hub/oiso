@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 정보 수정</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/mypage-edit.css">
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <p class="drawer-title">
+        필요한 메뉴를 선택해서<br>
+        원하는 화면으로 바로 이동할 수 있어요.
+    </p>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-guide.html">교환 가이드</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+    </nav>
+
+    <div class="drawer-bottom">
+        현재 페이지: 내 정보 수정
+    </div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+    <div class="sub-right-actions" id="subRightActions"></div>
+</div>
+
+<div class="page-body">
+    <div id="app"></div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const app = document.getElementById('app');
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+        window.location.href = '/users/logout';
+    }
+
+    function renderSubRightActions() {
+        fetch('/users/me-data')
+            .then(response => response.json())
+            .then(userData => {
+                const subRightActions = document.getElementById('subRightActions');
+
+                if (!subRightActions) {
+                    return;
+                }
+
+                if (userData.loggedIn) {
+                    subRightActions.innerHTML = `
+                        <a href="/mypage.html" class="main-icon-link" title="마이페이지">
+                            <span class="person-icon person-icon-small"></span>
+                        </a>
+                        <button type="button" class="main-login-link main-logout-button" onclick="logout()">로그아웃</button>
+                    `;
+                } else {
+                    subRightActions.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    function loadMyInfo() {
+        fetch('/users/me-data')
+            .then(response => response.json())
+            .then(userData => {
+                if (!userData.loggedIn) {
+                    app.innerHTML = renderLoginRequiredBox();
+                    return;
+                }
+
+                app.innerHTML = `
+                    <div class="mypage-edit-wrap">
+                        <div class="mypage-edit-card">
+                            <div class="mypage-edit-header">
+                                <div class="mypage-edit-icon">👤</div>
+                                <h1 class="mypage-edit-title">내 정보 수정</h1>
+                                <p class="mypage-edit-desc">
+                                    이름, 전화번호, 비밀번호를 수정할 수 있습니다.<br>
+                                    이메일은 아이디로 사용되므로 변경할 수 없습니다.
+                                </p>
+                            </div>
+
+                            <div id="resultMessage"></div>
+
+                            <div class="form-group">
+                                <label for="userEmail">이메일</label>
+                                <input type="email" id="userEmail" class="input-field" value="${escapeHtml(userData.userEmail)}" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="userName">이름</label>
+                                <input type="text" id="userName" class="input-field" value="${escapeHtml(userData.userName || '')}" placeholder="이름을 입력하세요">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="userPnum">전화번호</label>
+                                <input type="text" id="userPnum" class="input-field" value="${escapeHtml(userData.userPnum || '')}" placeholder="전화번호를 입력하세요">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newUserPwd">새 비밀번호</label>
+                                <input type="password" id="newUserPwd" class="input-field" placeholder="변경할 때만 입력하세요">
+                            </div>
+
+                            <div class="mypage-edit-actions">
+                                <button type="button" class="primary-button" onclick="updateMyInfo()">수정하기</button>
+                                <a href="/mypage.html" class="secondary-button">마이페이지로 돌아가기</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                app.innerHTML = renderLoginRequiredBox();
+                console.error(error);
+            });
+    }
+
+    function updateMyInfo() {
+        const userName = document.getElementById('userName').value.trim();
+        const userPnum = document.getElementById('userPnum').value.trim();
+        const newUserPwd = document.getElementById('newUserPwd').value.trim();
+        const resultMessage = document.getElementById('resultMessage');
+
+        if (userName === '' && userPnum === '' && newUserPwd === '') {
+            alert('수정할 정보를 하나 이상 입력하세요.');
+            return;
+        }
+
+        const params = new URLSearchParams();
+
+        if (userName !== '') {
+            params.append('userName', userName);
+        }
+
+        if (userPnum !== '') {
+            params.append('userPnum', userPnum);
+        }
+
+        if (newUserPwd !== '') {
+            params.append('newUserPwd', newUserPwd);
+        }
+
+        fetch('/users/update-my-info?' + params.toString())
+            .then(response => response.text())
+            .then(message => {
+                if (message.includes('완료')) {
+                    resultMessage.innerHTML = `
+                        <div class="login-info-box">
+                            내 정보가 수정되었습니다.
+                        </div>
+                    `;
+
+                    setTimeout(() => {
+                        window.location.href = '/mypage.html';
+                    }, 900);
+                    return;
+                }
+
+                resultMessage.innerHTML = `
+                    <div class="login-error-box">
+                        ${escapeHtml(message)}
+                    </div>
+                `;
+            })
+            .catch(error => {
+                resultMessage.innerHTML = `
+                    <div class="login-error-box">
+                        내 정보 수정 중 문제가 발생했습니다.
+                    </div>
+                `;
+                console.error(error);
+            });
+    }
+
+    function renderLoginRequiredBox() {
+        return `
+            <div class="login-required-box">
+                <h2 class="login-required-title">로그인이 필요합니다</h2>
+                <p class="login-required-desc">
+                    내 정보 수정은 로그인한 사용자만 이용할 수 있습니다.<br>
+                    먼저 로그인한 뒤 다시 이용해주세요.
+                </p>
+                <div class="button-row" style="justify-content: center;">
+                    <a class="primary-button" href="/login.html">로그인하러 가기</a>
+                    <a class="secondary-button" href="/index.html">메인으로 이동</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+
+    renderSubRightActions();
+    loadMyInfo();
+</script>
+</body>
+</html>

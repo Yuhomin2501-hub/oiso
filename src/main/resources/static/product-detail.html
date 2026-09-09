@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 상세</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/product.css">
+
+    <style>
+        .detail-reported-notice {
+            margin: 0 0 24px;
+            padding: 17px 18px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, #ffe1e1 0%, #ffc2c2 100%);
+            border: 1px solid #e05a5a;
+            color: #7f1d1d;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.7;
+            box-shadow:
+                    5px 7px 16px rgba(196, 55, 55, 0.14),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+        }
+
+        .detail-reported-notice strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #991b1b;
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .detail-status-row {
+            flex: 0 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-status-badge.reported {
+            background: linear-gradient(180deg, #e24b4b 0%, #b91c1c 100%);
+            border: 1px solid #991b1b;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(70, 0, 0, 0.35);
+        }
+    </style>
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <p class="drawer-title">
+        필요한 메뉴를 선택해서<br>
+        원하는 화면으로 바로 이동할 수 있어요.
+    </p>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link current-menu" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link" href="/exchange-guide.html">교환 가이드</a>
+    </nav>
+
+    <div class="drawer-bottom">현재 페이지: 상품 상세</div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+    <div class="sub-right-actions" id="subRightActions"></div>
+</div>
+
+<div class="page-body">
+    <div id="app"></div>
+</div>
+
+<div class="image-modal" id="imageModal" onclick="closeImageModal(event)">
+    <button type="button" class="image-modal-close" onclick="closeImageModal()">×</button>
+    <img id="imageModalImg" class="image-modal-img" src="" alt="확대 이미지">
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const imageModal = document.getElementById('imageModal');
+    const imageModalImg = document.getElementById('imageModalImg');
+
+    let currentImageIndex = 0;
+    let currentImageList = [];
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+        window.location.href = '/users/logout';
+    }
+
+    function renderSubRightActions() {
+        fetch('/users/me-data')
+            .then(response => response.json())
+            .then(data => {
+                const subRightActions = document.getElementById('subRightActions');
+
+                if (!subRightActions) {
+                    return;
+                }
+
+                if (data.loggedIn) {
+                    subRightActions.innerHTML = `
+                        <a href="/mypage.html" class="main-icon-link" title="마이페이지">
+                            <span class="person-icon person-icon-small"></span>
+                        </a>
+                        <button type="button" class="main-login-link main-logout-button" onclick="logout()">로그아웃</button>
+                    `;
+                } else {
+                    subRightActions.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('productId');
+    const app = document.getElementById('app');
+
+    if (!productId) {
+        app.innerHTML = `
+            <div class="detail-simple-message">
+                <h2>잘못된 접근입니다</h2>
+                <p>상품번호가 없습니다.</p>
+                <div class="button-row" style="justify-content:center;">
+                    <a class="secondary-button" href="/product-list.html">목록으로 돌아가기</a>
+                </div>
+            </div>
+        `;
+    } else {
+        loadProductDetail();
+    }
+
+    async function loadProductDetail() {
+        try {
+            const productResponse = await fetch('/products/detail-data?productId=' + encodeURIComponent(productId));
+            const product = await productResponse.json();
+
+            if (!product || !product.productId) {
+                app.innerHTML = `
+                    <div class="detail-simple-message">
+                        <h2>상품을 찾을 수 없습니다</h2>
+                        <p>삭제되었거나 존재하지 않는 상품입니다.</p>
+                        <div class="button-row" style="justify-content:center;">
+                            <a class="secondary-button" href="/product-list.html">목록으로 돌아가기</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            currentImageList = Array.isArray(product.productImagePathList) && product.productImagePathList.length > 0
+                ? product.productImagePathList.slice()
+                : [product.productImagePath];
+
+            currentImageList = currentImageList.filter(path => path != null && path !== '');
+            currentImageIndex = 0;
+
+            let myProducts = null;
+
+            if (!product.myProduct && product.productStatus === '판매중') {
+                try {
+                    const myProductsResponse = await fetch('/products/my-list-data');
+                    myProducts = await myProductsResponse.json();
+                } catch (e) {
+                    myProducts = null;
+                }
+            }
+
+            const actionPanelHtml = renderActionPanel(product, myProducts);
+
+            app.innerHTML = `
+                <div class="detail-page-card">
+                    <div class="detail-hero">
+                        <div>
+                            <div class="detail-hero-label">상품 상세</div>
+                            <h1 class="detail-hero-title">${escapeHtml(product.productName)}</h1>
+                            <p class="detail-hero-desc">
+                                상품 정보와 현재 상태를 확인하고, 가능한 경우 교환 신청을 보낼 수 있습니다.
+                            </p>
+                        </div>
+
+                        ${renderDetailStatusBadge(product.productStatus, product.reported === true)}
+                    </div>
+
+                    ${renderReportedNotice(product.reported === true)}
+
+                    <div class="detail-main-layout">
+                        <section class="detail-media-panel">
+                            ${renderImageSlider(product)}
+                        </section>
+
+                        <aside class="detail-side-panel">
+                            <section class="detail-summary-card">
+                                <h2>기본 정보</h2>
+
+                                <div class="detail-info-grid">
+                                    <div class="detail-info-item">
+                                        <span>상품번호</span>
+                                        <strong>${product.productId}</strong>
+                                    </div>
+
+                                    <div class="detail-info-item">
+                                        <span>등록자</span>
+                                        <strong>${escapeHtml(product.userName == null ? product.userEmail : product.userName)}</strong>
+                                    </div>
+
+                                    <div class="detail-info-item">
+                                        <span>카테고리</span>
+                                        <strong>${escapeHtml(product.category == null ? '' : product.category)}</strong>
+                                    </div>
+
+                                    <div class="detail-info-item">
+                                        <span>등록일</span>
+                                        <strong>${formatRelativeTime(product.regDt)}</strong>
+                                    </div>
+                                </div>
+                            </section>
+
+                            ${actionPanelHtml}
+
+                            <div class="detail-side-bottom">
+                                <a class="secondary-button" href="/product-list.html">목록으로 돌아가기</a>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <section class="detail-desc-panel">
+                        <div class="detail-section-title-row">
+                            <div>
+                                <h2>상품 설명</h2>
+                                <p>등록자가 작성한 상품 설명입니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="info-desc">${escapeHtml(product.productDesc == null || product.productDesc.trim() === '' ? '상품 설명이 없습니다.' : product.productDesc)}</div>
+                    </section>
+                </div>
+            `;
+
+            updateSliderUi();
+        } catch (error) {
+            app.innerHTML = renderLoginRequiredBox();
+            console.error(error);
+        }
+    }
+
+    function renderReportedNotice(reported) {
+        if (!reported) {
+            return '';
+        }
+
+        return `
+            <div class="detail-reported-notice">
+                <strong>신고가 접수된 상품입니다</strong>
+                이 상품은 사용자 신고가 접수된 상태입니다. 상품 정보와 거래 여부를 신중하게 확인해주세요.
+            </div>
+        `;
+    }
+
+    function renderActionPanel(product, myProducts) {
+        if (product.myProduct) {
+            return `
+                <section class="detail-action-card">
+                    <div class="detail-action-title-row">
+                        <div>
+                            <h2>내 상품 관리</h2>
+                            <p>내가 등록한 상품입니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-notice-box soft">
+                        내 상품에는 교환 신청과 신고를 할 수 없습니다.<br>
+                        상품 정보나 상태를 바꾸려면 수정 화면으로 이동해주세요.
+                    </div>
+
+                    <div class="button-row">
+                        <a class="primary-button" href="/product-edit.html?productId=${product.productId}">수정 / 삭제하러 가기</a>
+                    </div>
+                </section>
+            `;
+        }
+
+        if (product.productStatus === '예약중') {
+            return renderUnavailableActionPanel(
+                product.productId,
+                '현재 예약중인 상품입니다',
+                '다른 사용자와 교환이 진행 중이라 지금은 교환 신청을 보낼 수 없습니다.'
+            );
+        }
+
+        if (product.productStatus === '거래완료') {
+            return renderUnavailableActionPanel(
+                product.productId,
+                '거래가 완료된 상품입니다',
+                '이미 교환이 완료된 상품이라 교환 신청을 보낼 수 없습니다.'
+            );
+        }
+
+        if (product.productStatus !== '판매중') {
+            return renderUnavailableActionPanel(
+                product.productId,
+                '교환 신청이 불가능한 상품입니다',
+                '현재 상품 상태에서는 교환 신청을 보낼 수 없습니다.'
+            );
+        }
+
+        if (!Array.isArray(myProducts)) {
+            return `
+                <section class="detail-action-card">
+                    <div class="detail-action-title-row">
+                        <div>
+                            <h2>교환 신청</h2>
+                            <p>로그인 후 이용할 수 있습니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-notice-box">
+                        교환 신청은 로그인한 사용자만 이용할 수 있습니다.
+                    </div>
+
+                    <div class="button-row">
+                        <a class="primary-button" href="/login.html">로그인하러 가기</a>
+                        <button type="button" class="danger-button" onclick="toggleReportBox()">상품 신고</button>
+                    </div>
+
+                    ${renderReportBox(product.productId)}
+                </section>
+            `;
+        }
+
+        const availableMyProducts = myProducts.filter(myProduct =>
+            myProduct &&
+            myProduct.productId &&
+            myProduct.productStatus === '판매중'
+        );
+
+        if (availableMyProducts.length === 0) {
+            return `
+                <section class="detail-action-card">
+                    <div class="detail-action-title-row">
+                        <div>
+                            <h2>교환 신청</h2>
+                            <p>신청에 사용할 내 판매중 상품이 필요합니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-notice-box">
+                        교환 신청에 사용할 수 있는 판매중 내 상품이 없습니다.<br>
+                        먼저 상품을 등록하거나 내 상품 상태를 확인해주세요.
+                    </div>
+
+                    <div class="button-row">
+                        <a class="primary-button" href="/product-register.html">상품 등록하러 가기</a>
+                        <a class="secondary-button" href="/product-my-list.html">내 상품 보러가기</a>
+                        <button type="button" class="danger-button" onclick="toggleReportBox()">상품 신고</button>
+                    </div>
+
+                    ${renderReportBox(product.productId)}
+                </section>
+            `;
+        }
+
+        return `
+            <section class="detail-action-card">
+                <div class="detail-action-title-row">
+                    <div>
+                        <h2>교환 신청</h2>
+                        <p>내 상품을 선택해서 교환을 제안해보세요.</p>
+                    </div>
+                </div>
+
+                <div class="exchange-apply-guide">
+                    <div class="exchange-apply-guide-title">교환 신청 전 확인해주세요</div>
+
+                    <div class="exchange-apply-step-list">
+                        <div class="exchange-apply-step">
+                            <span class="exchange-apply-step-number">1</span>
+                            <div>
+                                <strong>내 상품을 선택합니다</strong>
+                                <p>판매중 상태인 내 상품만 교환 신청에 사용할 수 있습니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="exchange-apply-step">
+                            <span class="exchange-apply-step-number">2</span>
+                            <div>
+                                <strong>상대방이 신청을 확인합니다</strong>
+                                <p>판매자가 신청을 수락하면 교환이 진행됩니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="exchange-apply-step">
+                            <span class="exchange-apply-step-number">3</span>
+                            <div>
+                                <strong>채팅방이 생성됩니다</strong>
+                                <p>수락된 뒤 채팅방이 열리고 상품은 예약중 상태로 변경됩니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="requesterProductId">내 상품 선택</label>
+                    <select id="requesterProductId" class="select-field">
+                        <option value="">교환에 사용할 내 상품을 선택하세요</option>
+                        ${renderMyProductOptions(availableMyProducts)}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="requestMsg">교환 신청 메시지</label>
+                    <textarea id="requestMsg" class="textarea-field" placeholder="교환 신청 메시지를 입력하세요"></textarea>
+                </div>
+
+                <div class="button-row">
+                    <button type="button" class="primary-button" onclick="requestExchange(${product.productId})">교환신청 보내기</button>
+                    <button type="button" class="danger-button" onclick="toggleReportBox()">상품 신고</button>
+                </div>
+
+                <div class="helper-text">
+                    판매중 상태인 내 상품만 교환 신청에 사용할 수 있습니다.
+                </div>
+
+                ${renderReportBox(product.productId)}
+            </section>
+        `;
+    }
+
+    function renderUnavailableActionPanel(productId, title, message) {
+        return `
+            <section class="detail-action-card">
+                <div class="detail-action-title-row">
+                    <div>
+                        <h2>이용 메뉴</h2>
+                        <p>${escapeHtml(title)}</p>
+                    </div>
+                </div>
+
+                <div class="detail-notice-box warning">
+                    ${escapeHtml(message)}
+                </div>
+
+                <div class="button-row">
+                    <button type="button" class="danger-button" onclick="toggleReportBox()">상품 신고</button>
+                </div>
+
+                ${renderReportBox(productId)}
+            </section>
+        `;
+    }
+
+    function renderReportBox(targetProductId) {
+        return `
+            <div id="reportBox" class="detail-report-box" style="display:none;">
+                <div class="form-group">
+                    <label for="reportReason">신고 사유</label>
+                    <textarea id="reportReason" class="textarea-field" placeholder="신고 사유를 입력하세요"></textarea>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="danger-button" onclick="registerReport(${targetProductId})">신고하기</button>
+                </div>
+                <div class="helper-text">
+                    허위 신고나 장난 신고는 피해주세요.
+                </div>
+            </div>
+        `;
+    }
+
+    function renderDetailStatusBadge(productStatus, reported) {
+        const status = productStatus || '';
+        let statusClassName = 'detail-status-badge';
+
+        if (status === '판매중') {
+            statusClassName += ' sale';
+        } else if (status === '예약중') {
+            statusClassName += ' reserved';
+        } else if (status === '거래완료') {
+            statusClassName += ' completed';
+        } else {
+            statusClassName += ' default';
+        }
+
+        if (reported) {
+            return `
+                <div class="detail-status-row">
+                    <div class="detail-status-badge reported">신고됨</div>
+                    <div class="${statusClassName}">${escapeHtml(status)}</div>
+                </div>
+            `;
+        }
+
+        return `<div class="${statusClassName}">${escapeHtml(status)}</div>`;
+    }
+
+    function renderImageSlider(product) {
+        const imageCount = currentImageList.length;
+        const imagePath = imageCount > 0 ? currentImageList[0] : '';
+        const imageStatusBadge = renderImageTopBadge(product);
+
+        return `
+            <div class="detail-image-slider">
+                <div class="detail-image-frame">
+                    ${imageStatusBadge}
+                    <img
+                        id="detailMainImage"
+                        src="${escapeHtml(imagePath)}"
+                        alt="${escapeHtml(product.productName)}"
+                        class="detail-main-image"
+                        onclick="openImageModal()"
+                    >
+
+                    ${imageCount > 1 ? `
+                        <button type="button" class="detail-image-nav detail-image-nav-left" onclick="prevImage()">‹</button>
+                        <button type="button" class="detail-image-nav detail-image-nav-right" onclick="nextImage()">›</button>
+                    ` : ''}
+                </div>
+
+                <div class="detail-image-bottom">
+                    <div class="detail-image-counter" id="detailImageCounter">${imageCount > 0 ? `1 / ${imageCount}` : '0 / 0'}</div>
+
+                    ${imageCount > 1 ? `
+                        <div class="detail-thumb-row">
+                            ${currentImageList.map((path, index) => `
+                                <button
+                                    type="button"
+                                    class="detail-thumb-button ${index === 0 ? 'active' : ''}"
+                                    onclick="goToImage(${index})"
+                                >
+                                    <img src="${escapeHtml(path)}" alt="썸네일 ${index + 1}" class="detail-thumb-image">
+                                </button>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderImageTopBadge(product) {
+        if (product.reported === true) {
+            return '<div class="product-status-badge reported">신고됨</div>';
+        }
+
+        if (product.productStatus === '거래완료') {
+            return '<div class="product-status-badge completed">거래완료</div>';
+        }
+
+        if (product.productStatus === '예약중') {
+            return '<div class="product-status-badge reserved">예약중</div>';
+        }
+
+        return '';
+    }
+
+    function updateSliderUi() {
+        const mainImage = document.getElementById('detailMainImage');
+        const counter = document.getElementById('detailImageCounter');
+        const thumbButtons = document.querySelectorAll('.detail-thumb-button');
+
+        if (!mainImage || currentImageList.length === 0) {
+            return;
+        }
+
+        mainImage.src = currentImageList[currentImageIndex];
+
+        if (counter) {
+            counter.textContent = `${currentImageIndex + 1} / ${currentImageList.length}`;
+        }
+
+        thumbButtons.forEach((button, index) => {
+            if (index === currentImageIndex) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+
+        if (imageModal.classList.contains('show')) {
+            imageModalImg.src = currentImageList[currentImageIndex];
+        }
+    }
+
+    function prevImage() {
+        if (currentImageList.length <= 1) {
+            return;
+        }
+
+        currentImageIndex = (currentImageIndex - 1 + currentImageList.length) % currentImageList.length;
+        updateSliderUi();
+    }
+
+    function nextImage() {
+        if (currentImageList.length <= 1) {
+            return;
+        }
+
+        currentImageIndex = (currentImageIndex + 1) % currentImageList.length;
+        updateSliderUi();
+    }
+
+    function goToImage(index) {
+        if (index < 0 || index >= currentImageList.length) {
+            return;
+        }
+
+        currentImageIndex = index;
+        updateSliderUi();
+    }
+
+    function openImageModal() {
+        if (currentImageList.length === 0) {
+            return;
+        }
+
+        imageModalImg.src = currentImageList[currentImageIndex];
+        imageModal.classList.add('show');
+    }
+
+    function closeImageModal(event) {
+        if (event && event.target !== imageModal) {
+            return;
+        }
+
+        imageModal.classList.remove('show');
+        imageModalImg.src = '';
+    }
+
+    function toggleReportBox() {
+        const reportBox = document.getElementById('reportBox');
+
+        if (!reportBox) {
+            return;
+        }
+
+        reportBox.style.display = reportBox.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function registerReport(targetProductId) {
+        const reportReasonElement = document.getElementById('reportReason');
+
+        if (!reportReasonElement) {
+            alert('신고 입력창을 찾을 수 없습니다.');
+            return;
+        }
+
+        const reportReason = reportReasonElement.value.trim();
+
+        if (reportReason === '') {
+            alert('신고 사유를 입력하세요.');
+            return;
+        }
+
+        fetch(`/reports/register?productId=${encodeURIComponent(targetProductId)}&reportReason=${encodeURIComponent(reportReason)}`)
+            .then(response => response.text())
+            .then(result => {
+                if (result.includes('로그인')) {
+                    app.innerHTML = renderLoginRequiredBox();
+                    return;
+                }
+
+                alert(result);
+
+                if (result.includes('완료') || result.includes('성공')) {
+                    reportReasonElement.value = '';
+                    const reportBox = document.getElementById('reportBox');
+                    if (reportBox) {
+                        reportBox.style.display = 'none';
+                    }
+
+                    loadProductDetail();
+                }
+            })
+            .catch(error => {
+                app.innerHTML = renderLoginRequiredBox();
+                console.error(error);
+            });
+    }
+
+    function renderMyProductOptions(products) {
+        let html = '';
+
+        products.forEach(product => {
+            html += `
+                <option value="${product.productId}">
+                    ${escapeHtml(product.productName)} (${escapeHtml(product.category == null ? '' : product.category)})
+                </option>
+            `;
+        });
+
+        return html;
+    }
+
+    function requestExchange(targetProductId) {
+        const requesterProductIdElement = document.getElementById('requesterProductId');
+        const requestMsgElement = document.getElementById('requestMsg');
+
+        if (!requesterProductIdElement || !requestMsgElement) {
+            app.innerHTML = renderLoginRequiredBox();
+            return;
+        }
+
+        const requesterProductId = requesterProductIdElement.value.trim();
+        const requestMsg = requestMsgElement.value.trim();
+
+        if (requesterProductId === '') {
+            alert('내 상품을 선택하세요.');
+            return;
+        }
+
+        if (requestMsg === '') {
+            alert('교환 신청 메시지를 입력하세요.');
+            return;
+        }
+
+        fetch(`/exchanges/request?productId=${targetProductId}&requesterProductId=${encodeURIComponent(requesterProductId)}&requestMsg=${encodeURIComponent(requestMsg)}`)
+            .then(response => response.text())
+            .then(result => {
+                if (result.includes('로그인')) {
+                    app.innerHTML = renderLoginRequiredBox();
+                    return;
+                }
+
+                alert(result);
+
+                if (result.includes('완료') || result.includes('성공')) {
+                    document.getElementById('requesterProductId').value = '';
+                    requestMsgElement.value = '';
+                    loadProductDetail();
+                }
+            })
+            .catch(error => {
+                app.innerHTML = renderLoginRequiredBox();
+                console.error(error);
+            });
+    }
+
+    function formatRelativeTime(dateText) {
+        if (!dateText) {
+            return '';
+        }
+
+        const targetDate = new Date(dateText);
+        if (Number.isNaN(targetDate.getTime())) {
+            return dateText;
+        }
+
+        const now = new Date();
+        const diffSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000);
+
+        if (diffSeconds < 60) {
+            return '방금 전';
+        }
+
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        if (diffMinutes < 60) {
+            return `${diffMinutes}분 전`;
+        }
+
+        const diffHours = Math.floor(diffMinutes / 60);
+        if (diffHours < 24) {
+            return `${diffHours}시간 전`;
+        }
+
+        const diffDays = Math.floor(diffHours / 24);
+        if (diffDays < 30) {
+            return `${diffDays}일 전`;
+        }
+
+        const diffMonths = Math.floor(diffDays / 30);
+        if (diffMonths < 12) {
+            return `${diffMonths}개월 전`;
+        }
+
+        const diffYears = Math.floor(diffMonths / 12);
+        return `${diffYears}년 전`;
+    }
+
+    function renderLoginRequiredBox() {
+        return `
+            <div class="login-required-box">
+                <h2 class="login-required-title">로그인이 필요합니다</h2>
+                <p class="login-required-desc">
+                    교환 신청 또는 신고 기능은 로그인한 사용자만 이용할 수 있습니다.<br>
+                    먼저 로그인한 뒤 다시 이용해주세요.
+                </p>
+                <div class="button-row" style="justify-content:center;">
+                    <a class="primary-button" href="/login.html">로그인하러 가기</a>
+                    <a class="secondary-button" href="/product-list.html">상품목록으로 이동</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    renderSubRightActions();
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            if (imageModal.classList.contains('show')) {
+                closeImageModal();
+                return;
+            }
+
+            closeDrawer();
+        }
+
+        if (imageModal.classList.contains('show') || document.getElementById('detailMainImage')) {
+            if (event.key === 'ArrowLeft') {
+                prevImage();
+            }
+
+            if (event.key === 'ArrowRight') {
+                nextImage();
+            }
+        }
+    });
+</script>
+</body>
+</html>

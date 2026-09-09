@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>아이디 찾기</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <p class="drawer-title">
+        필요한 메뉴를 선택해서<br>
+        원하는 화면으로 바로 이동할 수 있어요.
+    </p>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link current-menu" href="/find-account.html">아이디 찾기</a>
+    </nav>
+
+    <div class="drawer-bottom">
+        계정 정보를 확인하는 페이지입니다.
+    </div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+</div>
+
+<div class="login-page">
+    <div class="login-card">
+        <h1 class="login-title">아이디 찾기</h1>
+        <p class="login-desc">
+            가입할 때 입력한 이름과 전화번호로<br>
+            아이디를 확인할 수 있습니다.
+        </p>
+
+        <div id="findMessageBox"></div>
+
+        <div class="form-group">
+            <label for="userName">이름</label>
+            <input type="text" id="userName" class="input-field" placeholder="이름을 입력하세요">
+        </div>
+
+        <div class="form-group">
+            <label for="userPnum">전화번호</label>
+            <input type="text" id="userPnum" class="input-field" placeholder="전화번호를 입력하세요">
+        </div>
+
+        <div class="login-form-actions">
+            <button class="primary-button" onclick="findEmail()">아이디 찾기</button>
+            <a href="/reset-password.html" class="secondary-button">비밀번호 재설정</a>
+            <a href="/login.html" class="secondary-button">로그인으로 돌아가기</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function findEmail() {
+        const userName = document.getElementById('userName').value.trim();
+        const userPnum = document.getElementById('userPnum').value.trim();
+
+        if (userName === '') {
+            alert('이름을 입력하세요.');
+            return;
+        }
+
+        if (userPnum === '') {
+            alert('전화번호를 입력하세요.');
+            return;
+        }
+
+        fetch(`/users/find-email?userName=${encodeURIComponent(userName)}&userPnum=${encodeURIComponent(userPnum)}`)
+            .then(response => response.text())
+            .then(message => {
+                const findMessageBox = document.getElementById('findMessageBox');
+
+                if (message.startsWith('가입된 이메일:')) {
+                    findMessageBox.innerHTML = `
+                        <div class="login-info-box">
+                            ${escapeHtml(message)}
+                        </div>
+                    `;
+                    return;
+                }
+
+                findMessageBox.innerHTML = `
+                    <div class="login-error-box">
+                        ${escapeHtml(message)}
+                    </div>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('findMessageBox').innerHTML = `
+                    <div class="login-error-box">
+                        아이디 찾기 처리 중 문제가 발생했습니다.
+                    </div>
+                `;
+                console.error(error);
+            });
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    document.getElementById('userPnum').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            findEmail();
+        }
+    });
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+</script>
+</body>
+</html>

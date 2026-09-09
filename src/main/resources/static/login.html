@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <style>
+        .login-sub-action-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .find-id-link,
+        .find-password-link {
+            min-width: 160px;
+            text-align: center;
+        }
+
+        .find-id-link {
+            background: linear-gradient(180deg, #eef7ff 0%, #dcefff 100%);
+            border: 1px solid #b9d8f4;
+            color: #356b98;
+            box-shadow:
+                    5px 7px 16px rgba(125, 169, 209, 0.14),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+        }
+
+        .find-id-link:hover {
+            background: linear-gradient(180deg, #f7fbff 0%, #cfe7fb 100%);
+            color: #2d5f88;
+            transform: translateY(-1px);
+        }
+
+        .find-password-link {
+            background: linear-gradient(180deg, #fff3ea 0%, #ffe1cb 100%);
+            border: 1px solid #f1c7a4;
+            color: #a35f2f;
+            box-shadow:
+                    5px 7px 16px rgba(220, 157, 105, 0.14),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+        }
+
+        .find-password-link:hover {
+            background: linear-gradient(180deg, #fff8f3 0%, #ffd7b7 100%);
+            color: #8f5226;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .login-sub-action-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .find-id-link,
+            .find-password-link {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <p class="drawer-title">
+        필요한 메뉴를 선택해서<br>
+        원하는 화면으로 바로 이동할 수 있어요.
+    </p>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link current-menu" href="/login.html">로그인</a>
+    </nav>
+
+    <div class="drawer-bottom">
+        중고 물건을 판매 대신 교환하는<br>
+        oiso 서비스 메뉴입니다.
+    </div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+</div>
+
+<div class="login-page">
+    <div class="login-card">
+        <h1 class="login-title">로그인</h1>
+        <p class="login-desc">
+            oiso에 로그인하고 상품 등록, 교환 신청, 채팅 기능을 이용해보세요.
+        </p>
+
+        <div id="loginErrorBox"></div>
+
+        <form id="loginForm" method="post" action="/users/login">
+            <div class="form-group">
+                <label for="userEmail">이메일</label>
+                <input type="email" id="userEmail" name="userEmail" class="input-field" placeholder="이메일을 입력하세요">
+            </div>
+
+            <div class="form-group">
+                <label for="userPwd">비밀번호</label>
+                <input type="password" id="userPwd" name="userPwd" class="input-field" placeholder="비밀번호를 입력하세요">
+            </div>
+
+            <div class="login-form-actions">
+                <button type="button" class="primary-button" onclick="login()">로그인</button>
+                <a href="/signup.html" class="secondary-button">회원가입</a>
+                <a href="/index.html" class="secondary-button">메인으로 돌아가기</a>
+            </div>
+        </form>
+
+        <div class="login-sub-action-row">
+            <a href="/find-account.html" class="secondary-button find-id-link">이메일 찾기</a>
+            <a href="/reset-password.html" class="secondary-button find-password-link">비밀번호 재설정</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function login() {
+        const userEmail = document.getElementById('userEmail').value.trim(); // 이메일 입력칸에 사용자가 입력한 값을 가져옴
+        // value:사용자가 입력한값 , trim:앞뒤공백제거
+        const userPwd = document.getElementById('userPwd').value.trim(); // 비밀번호 입력칸에 사용자가 입력한 값을 가져옴
+
+        if (userEmail === '') {
+            alert('이메일을 입력하세요.');
+            return;
+        }
+
+        if (userPwd === '') {
+            alert('비밀번호를 입력하세요.');
+            return;
+        }
+
+        document.getElementById('loginForm').submit(); // 이메일과 비민번호가 둘다 입력되었을시 , 최종적으로 POST /users/login 요청이 컨트롤러로 가게됨
+        // 116행 , loginForm 이라는 id를 가진 요소를 찾아라 -> <form> 태그
+        // .submit : form을 강제로 호출
+    }
+
+    document.getElementById('userPwd').addEventListener('keydown', function(event) {  //비밀번호 입력칸에서 사용자가 enter키를 누르면 login()함수 실행
+        if (event.key === 'Enter') {
+            login();
+        }
+    });
+
+    const params = new URLSearchParams(window.location.search);  // controller에서 로그인 실패시 이쪽으로 옴 , 쿼리스트링 실행됨 ?loginError=true 이부분이 쿼리스트링
+    if (params.get('loginError') === 'true') { // 주소에서 loginError라는 이름의 값을 꺼냄 , /login.html?loginError=true 주소가 이거라면 true가 반환이 되어서 조건문이 실행되게 됨
+        document.getElementById('loginErrorBox').innerHTML = `
+            <div class="login-error-box">
+                이메일 또는 비밀번호가 올바르지 않습니다.
+            </div>
+        `;      // id="loginErrorBox"인 영역을 찾아서 그안에 에러메시지를 넣음 114행
+    }
+
+    window.addEventListener('keydown', function(event) { // 사용자가 키보드의 esc버튼을 누르면 사이드 햄버거메뉴가 닫힘
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+</script>
+</body>
+</html>

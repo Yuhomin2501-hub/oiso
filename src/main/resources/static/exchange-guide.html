@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>oiso 교환 가이드</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/exchange-guide.css">
+    <style>
+        .guide-hero {
+            padding: 38px 34px;
+            margin-bottom: 24px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #fff4e5 0%, #ffe0bf 45%, #ffd09a 100%);
+            border: 1px solid #f3c89e;
+            box-shadow:
+                    10px 14px 28px rgba(229, 161, 93, 0.18),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+        }
+
+        .guide-hero-title {
+            margin: 0 0 14px;
+            font-size: 38px;
+            color: #6f4323;
+        }
+
+        .guide-hero-desc {
+            margin: 0;
+            max-width: 980px;
+            color: #7b563d;
+            font-size: 17px;
+            line-height: 1.8;
+        }
+
+        .guide-hero-desc-line {
+            display: block;
+        }
+
+        .guide-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .guide-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.78);
+            color: #8a572f;
+            font-size: 14px;
+            font-weight: 800;
+            border: 1px solid rgba(241, 180, 117, 0.8);
+            box-shadow:
+                    4px 6px 14px rgba(224, 150, 84, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .guide-highlight-box {
+            margin-bottom: 22px;
+            padding: 24px 26px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, #fff9f4 0%, #fff0df 100%);
+            border: 1px solid #f2dac3;
+            box-shadow:
+                    8px 10px 22px rgba(209, 167, 124, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .guide-highlight-title {
+            margin: 0 0 10px;
+            font-size: 24px;
+            color: #70482c;
+        }
+
+        .guide-highlight-desc {
+            margin: 0;
+            color: #8a6a54;
+            line-height: 1.8;
+        }
+
+        .guide-step-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .guide-step-card {
+            padding: 26px 22px;
+            border-radius: 26px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 247, 240, 0.96) 100%);
+            border: 1px solid #f1dfcf;
+            box-shadow:
+                    8px 10px 24px rgba(209, 167, 124, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .guide-step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            margin-bottom: 14px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffc98f 0%, #ffb56e 58%, #f7a253 100%);
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 18px;
+            box-shadow:
+                    4px 6px 14px rgba(224, 150, 84, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+        }
+
+        .guide-step-card h3 {
+            margin: 0 0 10px;
+            color: #70482c;
+            font-size: 21px;
+        }
+
+        .guide-step-card p {
+            margin: 0;
+            color: #8a6a54;
+            line-height: 1.7;
+        }
+
+        .guide-point-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .guide-point-card {
+            padding: 26px 24px;
+            border-radius: 26px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 248, 242, 0.97) 100%);
+            border: 1px solid #f1dfcf;
+            box-shadow:
+                    8px 10px 24px rgba(209, 167, 124, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .guide-point-card h2 {
+            margin: 0 0 14px;
+            color: #70482c;
+            font-size: 24px;
+        }
+
+        .guide-point-card ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #8a6a54;
+            line-height: 1.8;
+        }
+
+        .guide-notice-box {
+            margin-bottom: 24px;
+            padding: 26px 28px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #fff3e8 0%, #ffe6cb 100%);
+            border: 1px solid #f0c99d;
+            box-shadow:
+                    10px 12px 24px rgba(224, 150, 84, 0.16),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        .guide-notice-box h2 {
+            margin: 0 0 12px;
+            color: #74452a;
+            font-size: 25px;
+        }
+
+        .guide-notice-box p {
+            margin: 0;
+            color: #835e45;
+            line-height: 1.8;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+            .guide-step-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .guide-hero {
+                padding: 28px 24px;
+            }
+
+            .guide-hero-title {
+                font-size: 30px;
+            }
+
+            .guide-hero-desc-line {
+                display: inline;
+            }
+
+            .guide-step-grid,
+            .guide-point-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link current-menu" href="/exchange-guide.html">교환 가이드</a>
+    </nav>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+    <div class="sub-right-actions" id="subRightActions"></div>
+</div>
+
+<div class="page-body">
+    <div class="guide-hero">
+        <h1 class="guide-hero-title">교환 가이드</h1>
+        <p class="guide-hero-desc">
+            <span class="guide-hero-desc-line">oiso는 돈으로 사고파는 서비스가 아닌 서로 필요한 중고 물건을 바꾸는 물물교환에 더 집중한 서비스입니다.</span>
+            <span class="guide-hero-desc-line">아래 순서대로 보면 이용 흐름을 빠르게 이해할 수 있습니다.</span>
+        </p>
+        <div class="guide-badge-row">
+            <div class="guide-badge">물물교환 중심</div>
+            <div class="guide-badge">교환 신청 가능</div>
+            <div class="guide-badge">채팅으로 일정 조율</div>
+            <div class="guide-badge">거래 완료 / 거래 취소</div>
+        </div>
+    </div>
+
+    <div class="guide-highlight-box">
+        <h2 class="guide-highlight-title">oiso 거래 핵심</h2>
+        <p class="guide-highlight-desc">
+            내가 가진 물건을 등록하고, 다른 사용자의 물건과 교환을 신청한 뒤,
+            상대방이 수락하면 채팅으로 조율해서 거래를 진행하는 구조입니다.
+        </p>
+    </div>
+
+    <div class="guide-step-grid">
+        <div class="guide-step-card">
+            <div class="guide-step-number">1</div>
+            <h3>상품 등록</h3>
+            <p>사진, 상품명, 카테고리, 설명을 입력해서 내가 가진 물건을 등록합니다.</p>
+        </div>
+
+        <div class="guide-step-card">
+            <div class="guide-step-number">2</div>
+            <h3>상품 찾기</h3>
+            <p>전체 상품이나 카테고리에서 교환하고 싶은 다른 사용자의 물건을 찾습니다.</p>
+        </div>
+
+        <div class="guide-step-card">
+            <div class="guide-step-number">3</div>
+            <h3>교환 신청</h3>
+            <p>내 상품 중 어떤 물건으로 교환하고 싶은지 선택해서 교환 신청을 보냅니다.</p>
+        </div>
+
+        <div class="guide-step-card">
+            <div class="guide-step-number">4</div>
+            <h3>수락 또는 거절</h3>
+            <p>상대방은 받은 교환 목록에서 신청 내용을 확인하고 수락 또는 거절할 수 있습니다.</p>
+        </div>
+
+        <div class="guide-step-card">
+            <div class="guide-step-number">5</div>
+            <h3>채팅 진행</h3>
+            <p>교환이 수락되면 채팅방이 생성되고, 시간과 장소를 조율할 수 있습니다.</p>
+        </div>
+
+        <div class="guide-step-card">
+            <div class="guide-step-number">6</div>
+            <h3>완료 또는 취소</h3>
+            <p>교환이 끝나면 거래 완료 처리하고, 진행이 어렵다면 양쪽 누구나 거래 취소를 할 수 있습니다.</p>
+        </div>
+    </div>
+
+    <div class="guide-notice-box">
+        <h2>꼭 알아둘 점</h2>
+        <p>
+            교환이 진행 중인 물건은 다른 사용자에게 다시 보이지 않도록 상품목록에 표시되지 않습니다.
+            그래서 이미 진행 중인 거래와 새 거래가 겹치지 않게 관리할 수 있습니다.
+        </p>
+    </div>
+
+    <div class="guide-point-grid">
+        <div class="guide-point-card">
+            <h2>교환 팁</h2>
+            <ul>
+                <li>상품 사진과 설명을 먼저 꼼꼼히 확인하기</li>
+                <li>채팅에서 상품 상태를 다시 한 번 맞춰보기</li>
+                <li>언제 어디서 만날지 미리 정해두기</li>
+                <li>교환 후에는 거래 완료로 마무리하기</li>
+            </ul>
+        </div>
+
+        <div class="guide-point-card">
+            <h2>거래 주의사항</h2>
+            <ul>
+                <li>애매한 상품 설명은 채팅으로 다시 확인하기</li>
+                <li>문제가 생기면 신고 기능 사용하기</li>
+                <li>등록이 제한되는 금지 품목은 올릴 수 없음</li>
+                <li>안전 문제 있는 상품은 제한될 수 있음</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="guide-highlight-box">
+        <h2 class="guide-highlight-title">왜 oiso는 물물교환을 고집할까?</h2>
+        <p class="guide-highlight-desc">
+            아직 쓸 수 있는 물건을 그냥 버리는 대신, 다른 사람에게 필요한 물건과 바꿔서 더 유용하게 활용할 수 있기 때문입니다.
+            이로 인하여 자원의 재활용을 촉진하는 효과를 가지며 나아가 불필요한 폐기물을 줄이는 친환경적인 소비 문화 확산에 기여합니다.
+            가격보다 실제 필요와 활용에 더 집중할 수 있다는 점도 장점입니다.
+        </p>
+    </div>
+
+    <div class="quick-button-area" style="justify-content: center;">
+        <a href="/product-list.html" class="primary-button">전체 상품 보러가기</a>
+        <a href="/category/category.html" class="primary-button">카테고리 보기</a>
+        <a href="/index.html" class="secondary-button">메인으로 돌아가기</a>
+    </div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+        window.location.href = '/users/logout';
+    }
+
+    function renderSubRightActions() {
+        fetch('/users/me-data')
+            .then(response => response.json())
+            .then(userData => {
+                const subRightActions = document.getElementById('subRightActions');
+
+                if (!subRightActions) {
+                    return;
+                }
+
+                if (userData.loggedIn) {
+                    subRightActions.innerHTML = `
+                        <a href="/mypage.html" class="main-icon-link" title="마이페이지">
+                            <span class="person-icon person-icon-small"></span>
+                        </a>
+                        <button type="button" class="main-login-link main-logout-button" onclick="logout()">로그아웃</button>
+                    `;
+                } else {
+                    subRightActions.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    renderSubRightActions();
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+</script>
+</body>
+</html>

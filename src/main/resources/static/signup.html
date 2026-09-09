@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <style>
+        .email-input-wrap {
+            position: relative;
+            flex: 1;
+        }
+
+        .email-input-wrap .input-field {
+            width: 100%;
+            padding-right: 44px;
+        }
+
+        .email-check-icon {
+            display: none;
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #52b788;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 12px rgba(45, 106, 79, 0.18);
+        }
+
+        .email-check-icon.show {
+            display: flex;
+        }
+
+        .auth-success-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 17px;
+            margin-bottom: 18px;
+            border: 1px solid #b7e4c7;
+            background: #f1fff5;
+            border-radius: 18px;
+            color: #2d6a4f;
+            box-shadow: 0 8px 18px rgba(45, 106, 79, 0.08);
+        }
+
+        .auth-check-icon {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #52b788;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .auth-success-title {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 3px;
+        }
+
+        .auth-success-desc {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #40916c;
+        }
+    </style>
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <p class="drawer-title">
+        필요한 메뉴를 선택해서<br>
+        원하는 화면으로 바로 이동할 수 있어요.
+    </p>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link current-menu" href="/signup.html">회원가입</a>
+    </nav>
+
+    <div class="drawer-bottom">
+        oiso 회원가입 페이지입니다.
+    </div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button> // 사이드메뉴가 열려있을때 뒤 배경을 어둡게 해줌
+    <a href="/index.html" class="sub-home-link">oiso</a>
+</div>
+
+<div class="login-page">
+    <div class="login-card">
+        <h1 class="login-title">회원가입</h1>
+        <p class="login-desc">
+            oiso 회원으로 가입하고 상품 등록, 교환 신청, 채팅 기능을 이용해보세요.
+        </p>
+
+        <div id="signupMessageBox"></div>
+
+        <div class="form-group">
+            <label for="userEmail">이메일</label>
+            <div style="display:flex; gap:10px;">
+                <div class="email-input-wrap">
+                    <input type="email" id="userEmail" class="input-field" placeholder="이메일을 입력하세요">
+                    <div id="emailCheckIcon" class="email-check-icon">✓</div>
+                </div>
+                <button type="button" class="secondary-button" onclick="checkEmail()" style="white-space:nowrap;">중복체크</button> // 이메일 중복체크
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="button" class="secondary-button" onclick="sendEmailCode()" style="width:100%;">  //
+                인증번호 발송
+            </button>
+        </div>
+
+        <div class="form-group">
+            <label for="emailCode">인증번호</label>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="emailCode" class="input-field" placeholder="인증번호 6자리를 입력하세요" maxlength="6" style="flex:1;">
+                <button type="button" class="secondary-button" onclick="verifyEmailCode()" style="white-space:nowrap;">인증확인</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="userPwd">비밀번호</label>
+            <input type="password" id="userPwd" class="input-field" placeholder="비밀번호를 입력하세요">
+        </div>
+
+        <div class="form-group">
+            <label for="userPwdCheck">비밀번호 확인</label>
+            <input type="password" id="userPwdCheck" class="input-field" placeholder="비밀번호를 다시 입력하세요">
+        </div>
+
+        <div class="form-group">
+            <label for="userName">이름</label>
+            <input type="text" id="userName" class="input-field" placeholder="이름을 입력하세요">
+        </div>
+
+        <div class="form-group">
+            <label for="userPnum">전화번호</label>
+            <input type="text" id="userPnum" class="input-field" placeholder="전화번호를 입력하세요">
+        </div>
+
+        <div class="login-form-actions">
+            <button class="primary-button" onclick="signup()">회원가입</button>
+            <a href="/login.html" class="secondary-button">로그인 페이지로 이동</a>
+            <a href="/index.html" class="secondary-button">메인으로 돌아가기</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer'); // 사이드 메뉴 영역을 가져옴
+    const drawerBackdrop = document.getElementById('drawerBackdrop');   // 사이드 메뉴가 열렸을 때 뒤 배경 영역을 가져옴
+    const emailCheckIcon = document.getElementById('emailCheckIcon');  // 이메일 중복체크 완료 아이콘을 가져옴
+
+    let emailChecked = false;    // 이메일 중복체크 완료 여부 저장
+    let checkedEmailValue = '';   // 중복체크가 완료된 이메일 값을 저장
+    let emailVerified = false;   // 이메일 인증 완료 여부 저장
+    let verifiedEmailValue = '';   // 인증이 완료된 이메일 값을 저장
+
+    function openDrawer() {     // 사이드 메뉴 열기 함수
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {        // 사이드 메뉴 열기 함수
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function showEmailCheckIcon() {             // 이메일 체크박스 아이콘 보이기 기능
+        emailCheckIcon.classList.add('show');
+    }
+
+    function hideEmailCheckIcon() {             // 이메일체크박스 아이콘 숨김 기능
+        emailCheckIcon.classList.remove('show');
+    }
+
+    document.getElementById('userEmail').addEventListener('input', function() {  // 사용자가 이메일 입력값을 변경할 때마다 실행됨
+        emailChecked = false;       // 이메일이 바뀌었으므로 중복체크 상태 초기화
+        checkedEmailValue = '';     // 기존에 중복체크한 이메일 값 초기화
+        emailVerified = false;       // 이메일이 바뀌었으므로 인증 상태도 초기화
+        verifiedEmailValue = '';     // 기존에 인증 완료된 이메일 값 초기화
+        document.getElementById('emailCode').value = '';  // 인증번호 입력칸 비우기
+        hideEmailCheckIcon();       // 중복체크 완료 아이콘 숨기기
+    });
+
+    function checkEmail() {                 // 이메일 체크 함수
+        const userEmail = document.getElementById('userEmail').value.trim(); // 공백 제거
+
+        if (userEmail === '') {         // 사용자가 이메일을 입력하지 않은경우
+            alert('이메일을 입력하세요.');
+            hideEmailCheckIcon();       // 이메일 체크 아이콘을 숨김
+            return;
+        }
+
+        fetch(`/users/check-email?userEmail=${encodeURIComponent(userEmail)}`) // 서버에 이메일 중복체크 요청
+            .then(response => response.text())  // 서버 응답을 문자열로 받음
+            .then(message => {
+                const signupMessageBox = document.getElementById('signupMessageBox');
+
+                if (message.includes('사용 가능한 이메일')) {  // 서버에서 사용 가능한 이메일 이라는 문장이 반환될시 이메일 중복체크 성공으로 판단
+                    // 해당되는 값들을 아래의 값처럼 바꿈
+                    emailChecked = true;                    // 중복체크완료
+                    checkedEmailValue = userEmail;          // 종복체크 완료된 이메일값 저장
+                    emailVerified = false;
+                    verifiedEmailValue = '';
+                    showEmailCheckIcon();                   // 이메일 체크완료 아이콘을 화면에 보여줌
+
+                    // 성공메시지를 화면에 출력
+                    signupMessageBox.innerHTML = `
+                        <div class="login-info-box">
+                            ${escapeHtml(message)}<br>
+                            인증번호 발송 버튼을 눌러주세요.
+                        </div>
+                    `;
+                    return;     // 성공처리후 함수종료
+                }
+
+                // 사용 불가능한 이메일이면 실패처리
+                emailChecked = false;       // 이미 가입된 이메일
+                checkedEmailValue = '';     // 중복체크 완료 이메일값 초기화
+                emailVerified = false;      // 인증 상태 초기화
+                verifiedEmailValue = '';    // 인증 완료 이메일 값 초기화
+                hideEmailCheckIcon();       // 이메일 체크 아이콘 숨김
+
+                // 사용 불가능한 이메일 일때 에러메시지 출력
+                signupMessageBox.innerHTML = `
+                    <div class="login-error-box">
+                        ${escapeHtml(message)}
+                    </div>
+                `;
+            })
+            .catch(error => {               // 서버 요청 중 오류 발생시
+                emailChecked = false;       // 중복체크 상태 초기화
+                checkedEmailValue = '';     // 중복체크 이메일 값 초기화
+                emailVerified = false;      // 이메일 인증 상태 초기화
+                verifiedEmailValue = '';    // 인증 완료 이메일 값 초기화
+                hideEmailCheckIcon();       // 이메일 체크 아이콘 숨김
+
+                // 오류 메시지를 화면에 출력
+                document.getElementById('signupMessageBox').innerHTML = `
+                    <div class="login-error-box">
+                        이메일 중복체크 처리 중 문제가 발생했습니다.
+                    </div>
+                `;
+                console.error(error);       // 개발자도구 콘솔에 실제 오류 출력
+            });
+    }
+
+    function sendEmailCode() {                  // 이메일 인증번호 발송 함수
+        const userEmail = document.getElementById('userEmail').value.trim();  // 입력한 이메일 값 가져옴
+
+        if (userEmail === '') {         // 이메일을 입력하지 않은 경우
+            alert('이메일을 입력하세요.');
+            return;
+        }
+
+        if (!emailChecked || checkedEmailValue !== userEmail) {   // 중복체크를 안 했거나 중복체크한 이메일과 현재 이메일이 다른경우
+            alert('이메일 중복체크를 먼저 해주세요.');
+            return;
+        }
+
+        fetch('/users/send-email-code', {           // 백엔드에 인증번호 발송 요청
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({          // 서버로 보낼 데이터를 JSON 문자열로 변환
+                userEmail: userEmail        // 인증번호를 받을 이메일
+            })
+        })
+            .then(response => response.text())      // 서버 응답을 문자열로 변환
+            .then(message => {
+                const signupMessageBox = document.getElementById('signupMessageBox');
+
+                if (message.includes('발송')) {
+                    emailVerified = false;
+                    verifiedEmailValue = '';
+
+                    signupMessageBox.innerHTML = `
+                        <div class="login-info-box">
+                            ${escapeHtml(message)}<br>
+                            이메일로 받은 인증번호를 입력해주세요.
+                        </div>
+                    `;
+                    return;
+                }
+
+                signupMessageBox.innerHTML = `
+                    <div class="login-error-box">
+                        ${escapeHtml(message)}
+                    </div>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('signupMessageBox').innerHTML = `
+                    <div class="login-error-box">
+                        인증번호 발송 중 문제가 발생했습니다.
+                    </div>
+                `;
+                console.error(error);
+            });
+    }
+
+    function verifyEmailCode() {            // 사용자가 이메일 인증번호 확인 버튼을 눌렀을때 실행됨
+        const userEmail = document.getElementById('userEmail').value.trim();    // 사용자가 입력한 이메일과 인증번호 값을 가져옴
+        const code = document.getElementById('emailCode').value.trim();
+
+        if (userEmail === '') {
+            alert('이메일을 입력하세요.');
+            return;
+        }
+
+        if (code === '') {
+            alert('인증번호를 입력하세요.');
+            return;
+        }
+
+        fetch('/users/verify-email-code', {     // 서버에 인증번호 확인요청을 보내는 부분
+            method: 'POST',                 // 요청주소는 POST /users/verify-email-code , 데이터형식은 json
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userEmail: userEmail,
+                code: code
+            })
+        })
+            .then(response => response.text())      // 서버에서온 응답을 문자열로 바꾸는 부분
+            .then(message => {
+                const signupMessageBox = document.getElementById('signupMessageBox');
+
+                if (message.includes('인증이 완료')) {
+                    emailVerified = true;
+                    verifiedEmailValue = userEmail;
+
+                    signupMessageBox.innerHTML = `
+                        <div class="auth-success-box">
+                            <div class="auth-check-icon">✓</div>
+                            <div>
+                                <div class="auth-success-title">이메일 인증 완료</div>
+                                <div class="auth-success-desc">
+                                    인증이 정상적으로 완료되었습니다.<br>
+                                    이제 비밀번호와 회원 정보를 입력해주세요.
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                emailVerified = false;
+                verifiedEmailValue = '';
+
+                signupMessageBox.innerHTML = `
+                    <div class="login-error-box">
+                        ${escapeHtml(message)}
+                    </div>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('signupMessageBox').innerHTML = `
+                    <div class="login-error-box">
+                        인증번호 확인 중 문제가 발생했습니다.
+                    </div>
+                `;
+                console.error(error);
+            });
+    }
+
+    function signup() {     // 사용자가 입력한 값을 가져옴
+        const userEmail = document.getElementById('userEmail').value.trim();
+        const userPwd = document.getElementById('userPwd').value.trim();
+        const userPwdCheck = document.getElementById('userPwdCheck').value.trim();
+        const userName = document.getElementById('userName').value.trim();
+        const userPnum = document.getElementById('userPnum').value.trim();
+
+        if (userEmail === '') {
+            alert('이메일을 입력하세요.');
+            return;
+        }
+
+        if (!emailChecked || checkedEmailValue !== userEmail) {
+            alert('이메일 중복체크를 먼저 해주세요.');
+            return;
+        }
+
+        if (!emailVerified || verifiedEmailValue !== userEmail) {
+            alert('이메일 인증을 완료해주세요.');
+            return;
+        }
+
+        if (userPwd === '') {
+            alert('비밀번호를 입력하세요.');
+            return;
+        }
+
+        if (userPwdCheck === '') {
+            alert('비밀번호 확인을 입력하세요.');
+            return;
+        }
+
+        if (userPwd !== userPwdCheck) {
+            alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+            return;
+        }
+
+        if (userName === '') {
+            alert('이름을 입력하세요.');
+            return;
+        }
+
+        if (userPnum === '') {
+            alert('전화번호를 입력하세요.');
+            return;
+        }
+
+        fetch('/users/signup', {            // 모든 항목이 문제가 없다면 POST /users/signup 요청을 보낸다
+            method: 'POST',                 //
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({          // 회원가입의 정보는  JSON 형태로 body에 담아서 보냄
+                userEmail: userEmail,
+                userPwd: userPwd,
+                userPwdCheck: userPwdCheck,
+                userName: userName,
+                userPnum: userPnum
+            })                                  // 프론트에서 최종적으로 호출하는 백엔드 주소는 POST /users/signup
+        })
+            .then(response => response.text())  // 서버에서 온 응답을 문자열로 바꿈
+            .then(message => {
+                const signupMessageBox = document.getElementById('signupMessageBox'); // 회원가입 성공,실패메시지를 박스에 넣음
+
+                if (message.includes('회원가입 완료')) {   // 서버에서 온 메시지안에 "회원가입 완료"라는 말이 들어있는지 확인
+                    signupMessageBox.innerHTML = `
+                        <div class="auth-success-box">
+                            <div class="auth-check-icon">✓</div>
+                            <div>
+                                <div class="auth-success-title">회원가입 완료</div>
+                                <div class="auth-success-desc">
+                                    회원가입이 정상적으로 완료되었습니다.<br>
+                                    로그인 페이지로 이동합니다.
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    setTimeout(() => {              // 회원가입 성공시 1.2초후 로그인페이지로 이동함
+                        window.location.href = '/login.html';
+                    }, 1200);
+                    return;
+                }
+
+                // 회원가입 실패 메시지 출력
+                signupMessageBox.innerHTML = `
+                    <div class="login-error-box">
+                        ${escapeHtml(message)}
+                    </div>
+                `;
+            })
+            .catch(error => {       // 서버가 꺼지거나 네트워크오류, 요청도중 예외발생시 사용자 메시지 반환
+                document.getElementById('signupMessageBox').innerHTML = `
+                    <div class="login-error-box">
+                        회원가입 처리 중 문제가 발생했습니다.
+                    </div>
+                `;
+                console.error(error);       // 개발자도구 콘솔에 실제 오류내용을 찍어줌
+            });
+    }
+
+    function escapeHtml(text) {             // 문자열을 html로 바로 해석되지 않게 바꿔줌
+        return String(text)                 // 서버에서 받은 메시지를 화면에 보여주기 전에 안전한 문자로 바꿔서 넣는 함수
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    window.addEventListener('keydown', function(event) {        // esq키 누르면 사이드메뉴 닫기
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+
+    document.getElementById('userPnum').addEventListener('keydown', function(event) {   // 전화번호 입력칸에서 enter누르면 회원가입 실행
+        if (event.key === 'Enter') {
+            signup();
+        }
+    });
+</script>
+</body>
+</html>

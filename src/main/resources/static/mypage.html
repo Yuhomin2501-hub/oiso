@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/mypage.css">
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link" href="/exchange-guide.html">교환 가이드</a>
+    </nav>
+
+    <div class="drawer-bottom" id="drawerBottomText">
+        oiso 마이페이지 메뉴입니다.
+    </div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+    <div class="sub-right-actions" id="subRightActions"></div>
+</div>
+
+<div class="mypage-wrap">
+    <div id="mypageApp"></div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+        window.location.href = '/users/logout';
+    }
+
+    function renderSubRightActions(data) {
+        const subRightActions = document.getElementById('subRightActions');
+
+        if (!subRightActions) {
+            return;
+        }
+
+        if (data.loggedIn) {
+            subRightActions.innerHTML = `
+                <a href="/mypage.html" class="main-icon-link" title="마이페이지">
+                    <span class="person-icon person-icon-small"></span>
+                </a>
+                <button type="button" class="main-login-link main-logout-button" onclick="logout()">로그아웃</button>
+            `;
+        } else {
+            subRightActions.innerHTML = '';
+        }
+    }
+
+    fetch('/users/me-data')
+        .then(response => response.json())
+        .then(data => {
+            renderSubRightActions(data);
+
+            const mypageApp = document.getElementById('mypageApp');
+            const drawerBottomText = document.getElementById('drawerBottomText');
+
+            if (!data.loggedIn) {
+                mypageApp.innerHTML = `
+                    <div class="login-required-box">
+                        <h2 class="login-required-title">로그인이 필요합니다</h2>
+                        <p class="login-required-desc">
+                            마이페이지는 로그인한 사용자만 이용할 수 있습니다.<br>
+                            먼저 로그인한 뒤 다시 이용해주세요.
+                        </p>
+                        <div class="button-row" style="justify-content:center;">
+                            <a class="primary-button" href="/login.html">로그인하러 가기</a>
+                            <a class="secondary-button" href="/index.html">메인으로 이동</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            drawerBottomText.innerHTML = `
+                현재 로그인 중<br>
+                ${escapeHtml(data.userEmail)}
+            `;
+
+            mypageApp.innerHTML = `
+                <div class="mypage-card mypage-shell">
+                    <div class="mypage-hero-label-wrap">
+                        <div class="mypage-hero-label">MY PAGE</div>
+                    </div>
+
+                    <div class="mypage-hero">
+                        <div>
+                            <h1 class="mypage-hero-title">안녕하세요, ${escapeHtml(data.userName)}님</h1>
+                            <p class="mypage-hero-desc">
+                                내 정보, 내 상품, 교환 내역, 신고 내역을 한 곳에서 관리할 수 있습니다.
+                            </p>
+                        </div>
+                        <div class="mypage-profile-badge">
+                            <span class="person-icon person-icon-large"></span>
+                        </div>
+                    </div>
+
+                    <div class="mypage-summary-grid">
+                        <div class="mypage-summary-card">
+                            <div class="mypage-summary-label">내 상품</div>
+                            <div class="mypage-summary-value">${numberOrZero(data.myProductCount)}</div>
+                        </div>
+                        <div class="mypage-summary-card">
+                            <div class="mypage-summary-label">내가 신청한 교환</div>
+                            <div class="mypage-summary-value">${numberOrZero(data.requestedExchangeCount)}</div>
+                        </div>
+                        <div class="mypage-summary-card">
+                            <div class="mypage-summary-label">받은 교환</div>
+                            <div class="mypage-summary-value">${numberOrZero(data.receivedExchangeCount)}</div>
+                        </div>
+                        <div class="mypage-summary-card">
+                            <div class="mypage-summary-label">내 신고</div>
+                            <div class="mypage-summary-value">${numberOrZero(data.myReportCount)}</div>
+                        </div>
+                    </div>
+
+                    <div class="mypage-info-grid">
+                        <div class="mypage-info-item">
+                            <div class="mypage-info-icon">🙍</div>
+                            <div class="mypage-info-content">
+                                <div class="mypage-info-label">이름</div>
+                                <div class="mypage-info-value">${escapeHtml(data.userName)}</div>
+                            </div>
+                        </div>
+
+                        <div class="mypage-info-item">
+                            <div class="mypage-info-icon">✉️</div>
+                            <div class="mypage-info-content">
+                                <div class="mypage-info-label">이메일</div>
+                                <div class="mypage-info-value">${escapeHtml(data.userEmail)}</div>
+                            </div>
+                        </div>
+
+                        <div class="mypage-info-item">
+                            <div class="mypage-info-icon">📞</div>
+                            <div class="mypage-info-content">
+                                <div class="mypage-info-label">전화번호</div>
+                                <div class="mypage-info-value">${escapeHtml(data.userPnum || '')}</div>
+                            </div>
+                        </div>
+
+                        <div class="mypage-info-item">
+                            <div class="mypage-info-icon">📅</div>
+                            <div class="mypage-info-content">
+                                <div class="mypage-info-label">가입일</div>
+                                <div class="mypage-info-value">${escapeHtml(formatDateTime(data.regDt))}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mypage-shortcut-grid">
+                        <a class="mypage-shortcut-card mypage-shortcut-accent" href="/mypage-edit.html">
+                            <div class="mypage-shortcut-icon">⚙️</div>
+                            <div class="mypage-shortcut-title">내정보 수정</div>
+                            <div class="mypage-shortcut-desc">이름, 전화번호, 비밀번호를 수정합니다.</div>
+                        </a>
+
+                        <a class="mypage-shortcut-card mypage-shortcut-accent" href="/product-my-list.html">
+                            <div class="mypage-shortcut-icon">📦</div>
+                            <div class="mypage-shortcut-title">내 상품</div>
+                            <div class="mypage-shortcut-desc">내가 등록한 상품 목록을 확인합니다.</div>
+                        </a>
+
+                        <a class="mypage-shortcut-card mypage-shortcut-accent" href="/exchange-requested-list.html">
+                            <div class="mypage-shortcut-icon">📨</div>
+                            <div class="mypage-shortcut-title">내가 신청한 교환</div>
+                            <div class="mypage-shortcut-desc">내가 보낸 교환 신청 내역을 확인합니다.</div>
+                        </a>
+
+                        <a class="mypage-shortcut-card mypage-shortcut-accent" href="/exchange-received-list.html">
+                            <div class="mypage-shortcut-icon">📥</div>
+                            <div class="mypage-shortcut-title">받은 교환</div>
+                            <div class="mypage-shortcut-desc">내 상품에 들어온 교환 신청을 확인합니다.</div>
+                        </a>
+
+                        <a class="mypage-shortcut-card mypage-shortcut-accent" href="/report-my-list.html">
+                            <div class="mypage-shortcut-icon">🚨</div>
+                            <div class="mypage-shortcut-title">내 신고 목록</div>
+                            <div class="mypage-shortcut-desc">내가 등록한 신고 내역을 확인합니다.</div>
+                        </a>
+
+                        <button type="button" class="mypage-shortcut-card danger" onclick="withdrawAccount()">
+                            <div class="mypage-shortcut-icon">🗑️</div>
+                            <div class="mypage-shortcut-title">회원탈퇴</div>
+                            <div class="mypage-shortcut-desc">계정과 관련된 데이터를 모두 삭제합니다.</div>
+                        </button>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            document.getElementById('mypageApp').innerHTML = `
+                <div class="error-message">
+                    마이페이지 정보를 불러오는 중 문제가 발생했습니다.
+                </div>
+            `;
+            console.error(error);
+        });
+
+    function numberOrZero(value) {
+        if (value == null || value === '') {
+            return '0';
+        }
+
+        return String(value);
+    }
+
+    function formatDateTime(value) {
+        if (!value) {
+            return '';
+        }
+
+        const date = new Date(value);
+
+        if (isNaN(date.getTime())) {
+            return String(value).replace('T', ' ');
+        }
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hour = String(date.getHours()).padStart(2, '0');
+        const minute = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hour}:${minute}`;
+    }
+
+    function withdrawAccount() {
+        const confirmed = confirm('정말 탈퇴하시겠습니까?\n탈퇴하면 회원 정보, 상품, 교환, 신고, 채팅방, 채팅메시지가 모두 삭제됩니다.');
+
+        if (!confirmed) {
+            return;
+        }
+
+        fetch('/users/withdraw')
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+
+                if (message.includes('완료')) {
+                    window.location.href = '/index.html';
+                }
+            })
+            .catch(error => {
+                alert('회원 탈퇴 처리 중 문제가 발생했습니다.');
+                console.error(error);
+            });
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+</script>
+</body>
+</html>

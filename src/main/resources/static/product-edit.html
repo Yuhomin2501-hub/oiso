@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 수정 / 삭제</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/product.css">
+    <style>
+        .image-upload-section {
+            margin-top: 10px;
+            padding: 22px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, #fffaf5 0%, #fff2e8 100%);
+            border: 1px solid #f1dcc8;
+        }
+
+        .image-upload-title {
+            margin: 0 0 8px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #70482c;
+        }
+
+        .image-upload-desc {
+            margin: 0 0 16px;
+            color: #8a6a54;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .image-preview-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #ead7c7;
+            background: #fff8f1;
+            box-shadow:
+                    4px 6px 12px rgba(202, 166, 133, 0.10),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .image-preview-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+            background: #fff4ea;
+        }
+
+        .image-preview-info {
+            padding: 10px 12px 12px;
+        }
+
+        .image-preview-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: #8b603f;
+            margin-bottom: 6px;
+        }
+
+        .image-preview-name {
+            font-size: 12px;
+            color: #8a6a54;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .image-remove-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            min-width: auto;
+            min-height: auto;
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid #de8f8f;
+            background: rgba(255, 255, 255, 0.92);
+            color: #c24c4c;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .image-remove-button:hover {
+            background: #fff2f2;
+        }
+
+        .image-count-text {
+            margin-top: 10px;
+            color: #8a6a54;
+            font-size: 13px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <p class="drawer-title">
+        필요한 메뉴를 선택해서<br>
+        원하는 화면으로 바로 이동할 수 있어요.
+    </p>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link current-menu" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link" href="/exchange-guide.html">교환 가이드</a>
+    </nav>
+
+    <div class="drawer-bottom">현재 페이지: 상품 수정 / 삭제</div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+</div>
+
+<div class="page-body">
+    <div id="app"></div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const categoryOptions = ['의류', '전자기기', '도서', '생활용품', '기타'];
+
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('productId');
+    const app = document.getElementById('app');
+
+    let currentMainImagePath = '';
+    let newMainImageFile = null;
+    let currentAdditionalImages = [];
+    let deleteProductImageIds = [];
+    let newAdditionalImageFiles = [];
+    let isUpdating = false;
+    let isDeleting = false;
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    if (!productId) {
+        app.innerHTML = renderErrorBox('잘못된 접근입니다. 상품번호가 없습니다.');
+    } else {
+        loadProductDetail();
+    }
+
+    function loadProductDetail() {
+        fetch('/products/detail-data?productId=' + encodeURIComponent(productId))
+            .then(response => response.json())
+            .then(product => {
+                if (!product || !product.productId) {
+                    app.innerHTML = renderLoginRequiredBox();
+                    return;
+                }
+
+                if (product.myProduct === false) {
+                    app.innerHTML = `
+                        <div class="error-message">
+                            내 상품만 수정하거나 삭제할 수 있습니다.
+                            <div class="button-row">
+                                <a class="action-button" href="/product-my-list.html">내 상품 목록으로 이동</a>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                currentMainImagePath = product.productImagePath || '';
+                currentAdditionalImages = Array.isArray(product.additionalImages) ? product.additionalImages.slice() : [];
+                deleteProductImageIds = [];
+                newAdditionalImageFiles = [];
+                newMainImageFile = null;
+                isUpdating = false;
+                isDeleting = false;
+
+                app.innerHTML = `
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">상품 수정 / 삭제</h1>
+                            <p class="page-subtitle">내가 등록한 상품 정보를 수정하거나 삭제할 수 있습니다.</p>
+                        </div>
+                        <div class="button-row">
+                            <a class="menu-link" href="/product-my-list.html">내 상품 목록</a>
+                            <a class="menu-link" href="/product-detail.html?productId=${product.productId}">상품 상세</a>
+                        </div>
+                    </div>
+
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label for="mainProductImage">대표 상품 사진</label>
+                            <input type="file" id="mainProductImage" class="input-field" accept="image/*">
+                            <div class="helper-text">대표 상품 사진은 상품 목록과 메인 최신 등록 상품에 표시됩니다.</div>
+
+                            <div class="image-upload-section">
+                                <h3 class="image-upload-title">대표 상품 사진</h3>
+                                <p class="image-upload-desc">새 대표사진을 선택하면 기존 대표사진 대신 사용됩니다.</p>
+                                <div class="image-preview-grid" id="mainImagePreviewGrid"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productImages">상품 사진</label>
+                            <input type="file" id="productImages" class="input-field" accept="image/*" multiple>
+                            <div class="helper-text">일반 상품 사진은 최대 10장까지 등록할 수 있습니다.</div>
+
+                            <div class="image-upload-section">
+                                <h3 class="image-upload-title">기존 상품 사진</h3>
+                                <p class="image-upload-desc">기존 일반 상품 사진은 각각 취소할 수 있습니다.</p>
+                                <div class="image-count-text" id="existingImageCountText"></div>
+                                <div class="image-preview-grid" id="existingAdditionalImageGrid"></div>
+                            </div>
+
+                            <div class="image-upload-section" style="margin-top:16px;">
+                                <h3 class="image-upload-title">새로 추가할 상품 사진</h3>
+                                <p class="image-upload-desc">새로 선택한 사진도 각각 취소할 수 있습니다.</p>
+                                <div class="image-count-text" id="newImageCountText"></div>
+                                <div class="image-preview-grid" id="newAdditionalImageGrid"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productName">상품명</label>
+                            <input type="text" id="productName" class="input-field" value="${escapeHtml(product.productName)}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">카테고리</label>
+                            <select id="category" class="select-field">
+                                ${renderCategoryOptions(product.category)}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productDesc">상품 설명</label>
+                            <textarea id="productDesc" class="textarea-field">${escapeHtml(product.productDesc == null ? '' : product.productDesc)}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productStatus">상품 상태</label>
+                            <select id="productStatus" class="select-field">
+                                <option value="판매중" ${product.productStatus === '판매중' ? 'selected' : ''}>판매중</option>
+                                <option value="예약중" ${product.productStatus === '예약중' ? 'selected' : ''}>예약중</option>
+                                <option value="거래완료" ${product.productStatus === '거래완료' ? 'selected' : ''}>거래완료</option>
+                            </select>
+                        </div>
+
+                        <div class="button-row">
+                            <button class="primary-button" id="updateButton" onclick="updateProduct()">상품 수정</button>
+                            <button class="secondary-button" id="deleteButton" onclick="deleteProduct()">상품 삭제</button>
+                        </div>
+
+                        <div id="resultMessage" class="helper-text" style="margin-top: 18px;"></div>
+                    </div>
+                `;
+
+                bindImageEvents();
+                renderMainImagePreview();
+                renderExistingAdditionalImages();
+                renderNewAdditionalImages();
+            })
+            .catch(error => {
+                app.innerHTML = renderLoginRequiredBox();
+                console.error(error);
+            });
+    }
+
+    function bindImageEvents() {
+        const mainProductImageInput = document.getElementById('mainProductImage');
+        const productImagesInput = document.getElementById('productImages');
+
+        mainProductImageInput.addEventListener('change', function() {
+            const file = this.files[0] || null;
+            newMainImageFile = file;
+            renderMainImagePreview();
+            this.value = '';
+        });
+
+        productImagesInput.addEventListener('change', function() {
+            const files = Array.from(this.files || []);
+            if (files.length === 0) {
+                return;
+            }
+
+            const currentCount = currentAdditionalImages.length + newAdditionalImageFiles.length;
+
+            if (currentCount + files.length > 10) {
+                alert('일반 상품 사진은 최대 10장까지 등록할 수 있습니다.');
+                this.value = '';
+                return;
+            }
+
+            newAdditionalImageFiles = newAdditionalImageFiles.concat(files);
+            renderNewAdditionalImages();
+            this.value = '';
+        });
+    }
+
+    function renderMainImagePreview() {
+        const mainImagePreviewGrid = document.getElementById('mainImagePreviewGrid');
+        if (!mainImagePreviewGrid) {
+            return;
+        }
+
+        const imagePath = newMainImageFile ? URL.createObjectURL(newMainImageFile) : currentMainImagePath;
+
+        if (!imagePath) {
+            mainImagePreviewGrid.innerHTML = '';
+            return;
+        }
+
+        const fileName = newMainImageFile ? newMainImageFile.name : '현재 대표 사진';
+
+        mainImagePreviewGrid.innerHTML = `
+            <div class="image-preview-card">
+                ${newMainImageFile ? '<button type="button" class="image-remove-button" onclick="removeNewMainImage()">취소</button>' : ''}
+                <img src="${imagePath}" alt="대표 사진">
+                <div class="image-preview-info">
+                    <div class="image-preview-label">대표 사진</div>
+                    <div class="image-preview-name">${escapeHtml(fileName)}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderExistingAdditionalImages() {
+        const existingAdditionalImageGrid = document.getElementById('existingAdditionalImageGrid');
+        const existingImageCountText = document.getElementById('existingImageCountText');
+
+        if (!existingAdditionalImageGrid || !existingImageCountText) {
+            return;
+        }
+
+        existingImageCountText.textContent = `현재 ${currentAdditionalImages.length}장`;
+
+        if (currentAdditionalImages.length === 0) {
+            existingAdditionalImageGrid.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+
+        currentAdditionalImages.forEach((image, index) => {
+            html += `
+                <div class="image-preview-card">
+                    <button type="button" class="image-remove-button" onclick="removeExistingAdditionalImage(${image.productImageId})">취소</button>
+                    <img src="${escapeHtml(image.imagePath)}" alt="기존 상품 사진">
+                    <div class="image-preview-info">
+                        <div class="image-preview-label">기존 상품 사진 ${index + 1}</div>
+                        <div class="image-preview-name">${escapeHtml(image.imagePath)}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        existingAdditionalImageGrid.innerHTML = html;
+    }
+
+    function renderNewAdditionalImages() {
+        const newAdditionalImageGrid = document.getElementById('newAdditionalImageGrid');
+        const newImageCountText = document.getElementById('newImageCountText');
+
+        if (!newAdditionalImageGrid || !newImageCountText) {
+            return;
+        }
+
+        const totalCount = currentAdditionalImages.length + newAdditionalImageFiles.length;
+        newImageCountText.textContent = `새로 선택한 사진 ${newAdditionalImageFiles.length}장 / 전체 ${totalCount}장 / 최대 10장`;
+
+        if (newAdditionalImageFiles.length === 0) {
+            newAdditionalImageGrid.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+
+        newAdditionalImageFiles.forEach((file, index) => {
+            const imageUrl = URL.createObjectURL(file);
+
+            html += `
+                <div class="image-preview-card">
+                    <button type="button" class="image-remove-button" onclick="removeNewAdditionalImage(${index})">취소</button>
+                    <img src="${imageUrl}" alt="새 상품 사진">
+                    <div class="image-preview-info">
+                        <div class="image-preview-label">새 상품 사진 ${index + 1}</div>
+                        <div class="image-preview-name">${escapeHtml(file.name)}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        newAdditionalImageGrid.innerHTML = html;
+    }
+
+    function removeNewMainImage() {
+        newMainImageFile = null;
+        renderMainImagePreview();
+    }
+
+    function removeExistingAdditionalImage(productImageId) {
+        currentAdditionalImages = currentAdditionalImages.filter(image => image.productImageId !== productImageId);
+
+        if (!deleteProductImageIds.includes(productImageId)) {
+            deleteProductImageIds.push(productImageId);
+        }
+
+        renderExistingAdditionalImages();
+        renderNewAdditionalImages();
+    }
+
+    function removeNewAdditionalImage(index) {
+        newAdditionalImageFiles.splice(index, 1);
+        renderNewAdditionalImages();
+    }
+
+    function renderCategoryOptions(selectedCategory) {
+        let options = '<option value="">카테고리를 선택하세요</option>';
+
+        for (const category of categoryOptions) {
+            const selected = selectedCategory === category ? 'selected' : '';
+            options += `<option value="${category}" ${selected}>${category}</option>`;
+        }
+
+        return options;
+    }
+
+    function setUpdateButtonLoading(loading) {
+        const updateButton = document.getElementById('updateButton');
+        const deleteButton = document.getElementById('deleteButton');
+
+        if (updateButton) {
+            updateButton.disabled = loading;
+            updateButton.textContent = loading ? '상품 안전 검사 중...' : '상품 수정';
+        }
+
+        if (deleteButton) {
+            deleteButton.disabled = loading;
+        }
+    }
+
+    function setDeleteButtonLoading(loading) {
+        const updateButton = document.getElementById('updateButton');
+        const deleteButton = document.getElementById('deleteButton');
+
+        if (deleteButton) {
+            deleteButton.disabled = loading;
+            deleteButton.textContent = loading ? '상품 삭제 중...' : '상품 삭제';
+        }
+
+        if (updateButton) {
+            updateButton.disabled = loading;
+        }
+    }
+
+    function updateProduct() {
+        if (isUpdating || isDeleting) {
+            return;
+        }
+
+        const productName = document.getElementById('productName').value.trim();
+        const category = document.getElementById('category').value;
+        const productDesc = document.getElementById('productDesc').value.trim();
+        const productStatus = document.getElementById('productStatus').value;
+        const resultMessage = document.getElementById('resultMessage');
+
+        const totalAdditionalCount = currentAdditionalImages.length + newAdditionalImageFiles.length;
+
+        if (totalAdditionalCount > 10) {
+            alert('일반 상품 사진은 최대 10장까지 등록할 수 있습니다.');
+            return;
+        }
+
+        if (productName === '') {
+            alert('상품명을 입력하세요.');
+            return;
+        }
+
+        if (category === '') {
+            alert('카테고리를 선택하세요.');
+            return;
+        }
+
+        if (productDesc === '') {
+            alert('상품 설명을 입력하세요.');
+            return;
+        }
+
+        if (productStatus === '') {
+            alert('상품 상태를 선택하세요.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('productId', productId);
+        formData.append('productName', productName);
+        formData.append('category', category);
+        formData.append('productDesc', productDesc);
+        formData.append('productStatus', productStatus);
+
+        if (newMainImageFile) {
+            formData.append('mainProductImage', newMainImageFile);
+        }
+
+        newAdditionalImageFiles.forEach(file => {
+            formData.append('productImages', file);
+        });
+
+        deleteProductImageIds.forEach(id => {
+            formData.append('deleteProductImageIds', id);
+        });
+
+        isUpdating = true;
+        setUpdateButtonLoading(true);
+        resultMessage.textContent = '상품 안전 검사 중입니다. 잠시만 기다려주세요.';
+
+        fetch('/products/update', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(result => {
+                const trimmedResult = result.trim();
+                resultMessage.textContent = trimmedResult;
+
+                if (trimmedResult === '상품 수정 완료') {
+                    alert('상품이 수정되었습니다.');
+                    window.location.href = `/product-detail.html?productId=${encodeURIComponent(productId)}`;
+                    return;
+                }
+
+                alert(trimmedResult);
+            })
+            .catch(error => {
+                alert('상품 수정 중 문제가 발생했습니다. 다시 시도해주세요.');
+                resultMessage.textContent = '상품 수정 중 문제가 발생했습니다.';
+                console.error(error);
+            })
+            .finally(() => {
+                isUpdating = false;
+                setUpdateButtonLoading(false);
+            });
+    }
+
+    function deleteProduct() {
+        if (isUpdating || isDeleting) {
+            return;
+        }
+
+        const resultMessage = document.getElementById('resultMessage');
+
+        if (!confirm('정말로 이 상품을 삭제하시겠습니까?')) {
+            return;
+        }
+
+        isDeleting = true;
+        setDeleteButtonLoading(true);
+        resultMessage.textContent = '상품 삭제 중입니다. 잠시만 기다려주세요.';
+
+        fetch(`/products/delete?productId=${encodeURIComponent(productId)}`)
+            .then(response => response.text())
+            .then(result => {
+                const trimmedResult = result.trim();
+                resultMessage.textContent = trimmedResult;
+
+                if (trimmedResult.includes('완료')) {
+                    alert('상품이 삭제되었습니다.');
+                    window.location.href = '/product-my-list.html';
+                    return;
+                }
+
+                alert(trimmedResult);
+            })
+            .catch(error => {
+                alert('상품 삭제 중 문제가 발생했습니다. 다시 시도해주세요.');
+                resultMessage.textContent = '상품 삭제 중 문제가 발생했습니다.';
+                console.error(error);
+            })
+            .finally(() => {
+                isDeleting = false;
+                setDeleteButtonLoading(false);
+            });
+    }
+
+    function renderErrorBox(message) {
+        return `
+            <div class="error-message">
+                ${message}
+                <div class="button-row">
+                    <a class="action-button" href="/product-my-list.html">내 상품 목록으로 이동</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderLoginRequiredBox() {
+        return `
+            <div class="login-required-box">
+                <h2 class="login-required-title">로그인이 필요합니다</h2>
+                <p class="login-required-desc">
+                    이 기능은 로그인한 사용자만 이용할 수 있습니다.<br>
+                    먼저 로그인한 뒤 다시 이용해주세요.
+                </p>
+                <div class="button-row" style="justify-content: center;">
+                    <a class="primary-button" href="/login.html">로그인하러 가기</a>
+                    <a class="secondary-button" href="/index.html">메인으로 이동</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+</script>
+</body>
+</html>

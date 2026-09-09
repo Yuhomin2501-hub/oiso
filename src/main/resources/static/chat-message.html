@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>채팅 메시지</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/chat.css?v=20260604-1">
+    <style>
+        .chat-partner-highlight {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 7px;
+            color: #8b6a55;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .chat-partner-name,
+        .chat-product-highlight {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 999px;
+            background: #ffe1bd;
+            border: 1px solid #f5b873;
+            color: #70482c;
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow: none;
+        }
+
+        .chat-partner-text {
+            color: #8b6a55;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .chat-status-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .chat-status-label {
+            color: #8b6a55;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .chat-status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 32px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(80, 45, 20, 0.22);
+            box-shadow:
+                    4px 6px 14px rgba(90, 54, 24, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                    inset 0 -2px 4px rgba(70, 40, 20, 0.12);
+        }
+
+        .chat-status-badge.sale {
+            background: linear-gradient(180deg, #45c989 0%, #219b61 100%);
+            border: 1px solid #168653;
+        }
+
+        .chat-status-badge.reserved {
+            background: linear-gradient(180deg, #d85f1f 0%, #b94813 100%);
+            border: 1px solid #a63f10;
+        }
+
+        .chat-status-badge.completed {
+            background: linear-gradient(180deg, #bfc4c9 0%, #7f8790 100%);
+            border: 1px solid #6f7780;
+        }
+
+        .chat-status-badge.default {
+            background: linear-gradient(180deg, #f3a64c 0%, #d57a22 100%);
+            border: 1px solid #bd681c;
+        }
+    </style>
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <p class="drawer-title">
+        필요한 메뉴를 선택해서<br>
+        원하는 화면으로 바로 이동할 수 있어요.
+    </p>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link current-menu" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link" href="/exchange-guide.html">교환 가이드</a>
+    </nav>
+
+    <div class="drawer-bottom">현재 페이지: 채팅 메시지</div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+    <div class="sub-right-actions" id="subRightActions"></div>
+</div>
+
+<div class="chat-page">
+    <div id="chatApp"></div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+        window.location.href = '/users/logout';
+    }
+
+    function renderSubRightActions() {
+        fetch('/users/me-data')
+            .then(response => response.json())
+            .then(userData => {
+                const subRightActions = document.getElementById('subRightActions');
+
+                if (!subRightActions) {
+                    return;
+                }
+
+                if (userData.loggedIn) {
+                    subRightActions.innerHTML = `
+                        <a href="/mypage.html" class="main-icon-link" title="마이페이지">
+                            <span class="person-icon person-icon-small"></span>
+                        </a>
+                        <button type="button" class="main-login-link main-logout-button" onclick="logout()">로그아웃</button>
+                    `;
+                } else {
+                    subRightActions.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    renderSubRightActions();
+
+    const params = new URLSearchParams(window.location.search);
+    const chatRoomId = params.get('chatRoomId');
+
+    let lastMessageSignature = '';
+    let autoRefreshInterval = null;
+
+    if (!chatRoomId) {
+        document.getElementById('chatApp').innerHTML = `
+            <div class="login-required-box">
+                <h2 class="login-required-title">잘못된 접근입니다</h2>
+                <p class="login-required-desc">
+                    채팅방 정보가 없습니다.<br>
+                    채팅방 목록에서 다시 입장해주세요.
+                </p>
+                <div class="button-row" style="justify-content:center;">
+                    <a class="primary-button" href="/chat-room-list.html">채팅방 목록으로 가기</a>
+                    <a class="secondary-button" href="/index.html">메인으로 이동</a>
+                </div>
+            </div>
+        `;
+    } else {
+        document.getElementById('chatApp').innerHTML = `
+            <div class="chat-surface">
+                <div class="chat-header">
+                    <div>
+                        <h1>채팅</h1>
+                        <div id="chatPartner" class="chat-partner">상대방 정보를 불러오는 중...</div>
+                    </div>
+                    <a href="/chat-room-list.html" class="top-button">채팅방 목록</a>
+                </div>
+
+                <div id="chatBox" class="chat-box"></div>
+
+                <div class="send-box">
+                    <input type="text" id="messageInput" class="input-field" placeholder="메시지를 입력하세요.">
+                    <button type="button" class="primary-button" onclick="sendMessage()">전송</button>
+                </div>
+            </div>
+        `;
+
+        loadChatRoomInfo();
+        loadChatMessages(true);
+        startAutoRefresh();
+
+        document.addEventListener('keydown', function(event) {
+            const messageInput = document.getElementById('messageInput');
+
+            if (!messageInput) {
+                return;
+            }
+
+            if (event.key === 'Enter' && document.activeElement === messageInput) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        });
+    }
+
+    function loadChatRoomInfo() {
+        fetch('/chat-rooms/my-list-data')
+            .then(response => response.json())
+            .then(data => {
+                const chatPartnerDiv = document.getElementById('chatPartner');
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    showLoginRequiredInChat();
+                    return;
+                }
+
+                const currentChatRoom = data.find(chatRoom => chatRoom.chatRoomId === chatRoomId);
+
+                if (!currentChatRoom) {
+                    showLoginRequiredInChat();
+                    return;
+                }
+
+                const otherUserName = currentChatRoom.otherUserName || currentChatRoom.otherUserEmail || '상대방';
+                const productName = currentChatRoom.productName || '상품 정보 없음';
+                const productStatus = currentChatRoom.productStatus || '상태 정보 없음';
+
+                chatPartnerDiv.innerHTML = `
+                    <div class="chat-partner-highlight">
+                        <span class="chat-partner-name">${escapeHtml(otherUserName)}님</span>
+                        <span class="chat-partner-text">과</span>
+                        <span class="chat-product-highlight">${escapeHtml(productName)}</span>
+                        <span class="chat-partner-text">교환 채팅 중</span>
+                    </div>
+
+                    <div class="chat-status-line">
+                        <span class="chat-status-label">현재 상품 상태</span>
+                        ${renderChatStatusBadge(productStatus)}
+                    </div>
+                `;
+            })
+            .catch(error => {
+                showLoginRequiredInChat();
+                console.error(error);
+            });
+    }
+
+    function renderChatStatusBadge(productStatus) {
+        if (productStatus === '판매중') {
+            return '<span class="chat-status-badge sale">판매중</span>';
+        }
+
+        if (productStatus === '예약중') {
+            return '<span class="chat-status-badge reserved">예약중</span>';
+        }
+
+        if (productStatus === '거래완료') {
+            return '<span class="chat-status-badge completed">거래완료</span>';
+        }
+
+        return `<span class="chat-status-badge default">${escapeHtml(productStatus)}</span>`;
+    }
+
+    function loadChatMessages(forceScrollToBottom = false) {
+        fetch('/chat-messages/list-data?chatRoomId=' + encodeURIComponent(chatRoomId))
+            .then(response => response.json())
+            .then(data => {
+                const chatBox = document.getElementById('chatBox');
+
+                if (!chatBox) {
+                    return;
+                }
+
+                if (!Array.isArray(data)) {
+                    showLoginRequiredInChat();
+                    return;
+                }
+
+                if (data.length === 0) {
+                    chatBox.innerHTML = '<div class="empty-message">아직 채팅 메시지가 없습니다.</div>';
+                    lastMessageSignature = 'EMPTY';
+                    return;
+                }
+
+                const wasNearBottom = isNearBottom(chatBox);
+                const newSignature = makeMessageSignature(data);
+
+                if (newSignature === lastMessageSignature && !forceScrollToBottom) {
+                    updateVisibleRelativeTimes();
+                    return;
+                }
+
+                let html = '';
+
+                data.forEach(message => {
+                    const timeText = formatRelativeTime(message.sentAt);
+
+                    if (message.myMessage) {
+                        html += `
+                            <div class="message-row my-row">
+                                <div class="message-bubble my-bubble">${escapeHtml(message.message)}</div>
+                                <div class="message-time" data-time="${message.sentAt}">${timeText}</div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="message-row other-row">
+                                <div class="sender-name">${escapeHtml(message.senderEmail)}</div>
+                                <div class="message-bubble other-bubble">${escapeHtml(message.message)}</div>
+                                <div class="message-time" data-time="${message.sentAt}">${timeText}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                chatBox.innerHTML = html;
+                lastMessageSignature = newSignature;
+
+                if (forceScrollToBottom || wasNearBottom) {
+                    scrollToBottom();
+                }
+            })
+            .catch(error => {
+                showLoginRequiredInChat();
+                console.error(error);
+            });
+    }
+
+    function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+
+        if (!messageInput) {
+            return;
+        }
+
+        const message = messageInput.value.trim();
+
+        if (message === '') {
+            alert('메시지를 입력하세요.');
+            return;
+        }
+
+        fetch(`/chat-messages/send?chatRoomId=${encodeURIComponent(chatRoomId)}&message=${encodeURIComponent(message)}`)
+            .then(response => response.text())
+            .then(result => {
+                if (result.includes('로그인')) {
+                    showLoginRequiredInChat();
+                    return;
+                }
+
+                messageInput.value = '';
+                loadChatMessages(true);
+                messageInput.focus();
+            })
+            .catch(error => {
+                alert('로그인을 해야 이용이 가능합니다.');
+                console.error(error);
+            });
+    }
+
+    function showLoginRequiredInChat() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+
+        document.getElementById('chatApp').innerHTML = `
+            <div class="login-required-box">
+                <h2 class="login-required-title">로그인이 필요합니다</h2>
+                <p class="login-required-desc">
+                    채팅 기능은 로그인한 사용자만 이용할 수 있습니다.<br>
+                    먼저 로그인한 뒤 다시 이용해주세요.
+                </p>
+                <div class="button-row" style="justify-content:center;">
+                    <a class="primary-button" href="/login.html">로그인하러 가기</a>
+                    <a class="secondary-button" href="/chat-room-list.html">채팅방 목록으로 이동</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function formatRelativeTime(dateTimeString) {
+        const messageDate = new Date(dateTimeString);
+        const now = new Date();
+
+        const diffMs = now - messageDate;
+        const diffSeconds = Math.floor(diffMs / 1000);
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        const diffHours = Math.floor(diffMinutes / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffSeconds < 60) {
+            return '방금 전';
+        }
+
+        if (diffMinutes < 60) {
+            return diffMinutes + '분 전';
+        }
+
+        if (diffHours < 24) {
+            return diffHours + '시간 전';
+        }
+
+        if (diffDays < 7) {
+            return diffDays + '일 전';
+        }
+
+        return formatDateTime(dateTimeString);
+    }
+
+    function formatDateTime(dateTimeString) {
+        const date = new Date(dateTimeString);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
+
+    function updateVisibleRelativeTimes() {
+        const timeElements = document.querySelectorAll('.message-time');
+
+        timeElements.forEach(element => {
+            const originalTime = element.getAttribute('data-time');
+
+            if (originalTime) {
+                element.textContent = formatRelativeTime(originalTime);
+            }
+        });
+    }
+
+    function makeMessageSignature(data) {
+        return JSON.stringify(
+            data.map(message => ({
+                senderEmail: message.senderEmail,
+                message: message.message,
+                sentAt: message.sentAt
+            }))
+        );
+    }
+
+    function isNearBottom(element) {
+        const threshold = 80;
+        return element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
+    }
+
+    function scrollToBottom() {
+        const chatBox = document.getElementById('chatBox');
+
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    function startAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+
+        autoRefreshInterval = setInterval(() => {
+            loadChatMessages(false);
+        }, 3000);
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>oiso 메인페이지</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/index.css">
+
+    <style>
+        .main-latest-card.reserved-latest-card {
+            background: linear-gradient(180deg, #ffd0a1 0%, #ffad6b 100%);
+            border: 1px solid #e9823a;
+            box-shadow:
+                    8px 10px 24px rgba(220, 104, 28, 0.28),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+        }
+
+        .main-latest-card.completed-latest-card {
+            background: linear-gradient(180deg, #e3e7ea 0%, #c1c8cf 100%);
+            border: 1px solid #a8b1ba;
+            box-shadow:
+                    8px 10px 22px rgba(88, 96, 106, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.74);
+        }
+
+        .main-latest-image-wrap {
+            position: relative;
+        }
+
+        .main-product-status-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 30px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: -0.2px;
+            box-shadow:
+                    3px 4px 10px rgba(128, 76, 28, 0.18),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .main-product-status-badge.reserved {
+            background: linear-gradient(180deg, #d85f1f 0%, #b94813 100%);
+            border: 1px solid #a63f10;
+        }
+
+        .main-product-status-badge.completed {
+            background: linear-gradient(180deg, #5f666e 0%, #343a40 100%);
+            border: 1px solid #2b3035;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+        }
+    </style>
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <nav class="drawer-menu" id="drawerMenu">
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link" href="/exchange-guide.html">교환 가이드</a>
+    </nav>
+
+    <div class="drawer-bottom" id="drawerBottomText">
+        중고 물건을 판매 대신 교환하는<br>
+        oiso 서비스 메인 메뉴입니다.
+    </div>
+</aside>
+
+<div class="main-landing">
+    <div class="main-top-bar">
+        <button class="hamburger-button" onclick="openDrawer()">☰</button>
+
+        <div class="main-right-actions" id="mainRightActions">
+            <a href="/login.html" class="main-login-link">로그인</a>
+            <a href="/signup.html" class="main-login-link">회원가입</a>
+        </div>
+    </div>
+
+    <div class="main-center-wrap">
+        <div class="main-logo-circle">
+            <div class="main-logo-text">oiso</div>
+        </div>
+
+        <p class="main-sub-text" id="mainWelcomeText">
+            판매보다 교환에 집중한 중고 물물교환 서비스입니다.
+        </p>
+
+        <div class="main-search-box">
+            <input
+                    type="text"
+                    id="mainSearchKeyword"
+                    class="input-field main-search-input"
+                    placeholder="상품명을 입력해서 검색해보세요"
+            >
+            <button class="primary-button main-search-button" onclick="goSearch()">검색</button>
+        </div>
+
+        <div class="main-action-row">
+            <a href="/product-list.html" class="primary-button">전체 상품 보러가기</a>
+            <a href="/category/category.html" class="primary-button">카테고리 보기</a>
+            <a href="/exchange-guide.html" class="primary-button">교환 가이드</a>
+        </div>
+
+        <div class="main-info-card-row">
+            <div class="main-mini-card">
+                <div class="main-mini-icon">📦</div>
+                <h3>상품</h3>
+                <p>상품 조회, 등록, 수정, 삭제까지 한 번에 관리할 수 있습니다.</p>
+            </div>
+
+            <div class="main-mini-card">
+                <div class="main-mini-icon">🔄</div>
+                <h3>교환</h3>
+                <p>상품 상세에서 교환 신청을 보내고 받은 신청도 바로 처리할 수 있습니다.</p>
+            </div>
+
+            <div class="main-mini-card">
+                <div class="main-mini-icon">💬</div>
+                <h3>채팅 · 신고</h3>
+                <p>채팅방에서 대화하고 필요하면 신고 기능까지 이어서 이용할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="main-latest-section">
+        <div class="main-section-header">
+            <div>
+                <h2 class="main-section-title">최신 등록 상품</h2>
+                <p class="main-section-desc">메인에 들어올 때마다 최신 판매중/예약중/거래완료 상품이 자동으로 반영됩니다.</p>
+            </div>
+            <a href="/product-list.html" class="secondary-button">전체 상품 보기</a>
+        </div>
+
+        <div class="main-latest-grid" id="mainLatestGrid"></div>
+        <div class="main-latest-empty" id="mainLatestEmpty" style="display:none;">
+            아직 등록된 최신 상품이 없습니다.
+        </div>
+    </section>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+        window.location.href = '/users/logout';
+    }
+
+    function goSearch() {
+        const keyword = document.getElementById('mainSearchKeyword').value.trim();
+
+        if (keyword === '') {
+            window.location.href = '/product-list.html';
+            return;
+        }
+
+        window.location.href = `/product-list.html?keyword=${encodeURIComponent(keyword)}`;
+    }
+
+    document.getElementById('mainSearchKeyword').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            goSearch();
+        }
+    });
+
+    fetch('/users/me-data')
+        .then(response => response.json())
+        .then(data => {
+            const mainRightActions = document.getElementById('mainRightActions');
+            const mainWelcomeText = document.getElementById('mainWelcomeText');
+            const drawerBottomText = document.getElementById('drawerBottomText');
+
+            if (data.loggedIn) {
+                mainRightActions.innerHTML = `
+                    <a href="/mypage.html" class="main-icon-link" title="마이페이지">
+                        <span class="person-icon person-icon-small"></span>
+                    </a>
+                    <button type="button" class="main-login-link main-logout-button" onclick="logout()">로그아웃</button>
+                `;
+
+                mainWelcomeText.innerHTML = `
+                    <strong>${escapeHtml(data.userName)}</strong>님, 환영합니다.<br>
+                    판매보다 교환에 집중한 중고 물물교환 서비스 oiso를 이용해보세요.
+                `;
+
+                drawerBottomText.innerHTML = `
+                    현재 로그인 중<br>
+                    ${escapeHtml(data.userEmail)}
+                `;
+            } else {
+                mainRightActions.innerHTML = `
+                    <a href="/login.html" class="main-login-link">로그인</a>
+                    <a href="/signup.html" class="main-login-link">회원가입</a>
+                `;
+
+                mainWelcomeText.innerHTML = `
+                    판매보다 교환에 집중한 중고 물물교환 서비스입니다.
+                `;
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
+    fetch('/products/latest-data')
+        .then(response => response.json())
+        .then(data => {
+            renderLatestProducts(Array.isArray(data) ? data : []);
+        })
+        .catch(error => {
+            console.error(error);
+            renderLatestProducts([]);
+        });
+
+    function renderLatestProducts(products) {
+        const mainLatestGrid = document.getElementById('mainLatestGrid');
+        const mainLatestEmpty = document.getElementById('mainLatestEmpty');
+
+        if (!products || products.length === 0) {
+            mainLatestGrid.innerHTML = '';
+            mainLatestEmpty.style.display = 'block';
+            return;
+        }
+
+        mainLatestEmpty.style.display = 'none';
+
+        mainLatestGrid.innerHTML = products.map(product => {
+            const imagePath = product.productImagePath ? escapeHtml(product.productImagePath) : '';
+            const productName = escapeHtml(product.productName || '');
+            const category = escapeHtml(product.category || '');
+            const userName = escapeHtml(product.userName || '');
+            const relativeTime = formatRelativeTime(product.regDt);
+            const desc = product.productDesc ? escapeHtml(product.productDesc) : '상품 설명이 없습니다.';
+            const productStatus = product.productStatus || '';
+
+            const cardClass = getLatestCardClass(productStatus);
+            const statusBadge = renderLatestStatusBadge(productStatus);
+
+            return `
+                <a href="/product-detail.html?productId=${product.productId}" class="${cardClass}">
+                    <div class="main-latest-image-wrap">
+                        ${statusBadge}
+                        <img src="${imagePath}" alt="${productName}" class="main-latest-image">
+                    </div>
+                    <div class="main-latest-content">
+                        <div class="main-latest-category">${category}</div>
+                        <h3 class="main-latest-name">${productName}</h3>
+                        <p class="main-latest-desc">${desc}</p>
+                        <div class="main-latest-meta">
+                            <span>${userName}</span>
+                            <span>${relativeTime}</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
+    }
+
+    function getLatestCardClass(productStatus) {
+        if (productStatus === '예약중') {
+            return 'main-latest-card reserved-latest-card';
+        }
+
+        if (productStatus === '거래완료') {
+            return 'main-latest-card completed-latest-card';
+        }
+
+        return 'main-latest-card';
+    }
+
+    function renderLatestStatusBadge(productStatus) {
+        if (productStatus === '예약중') {
+            return '<div class="main-product-status-badge reserved">예약중</div>';
+        }
+
+        if (productStatus === '거래완료') {
+            return '<div class="main-product-status-badge completed">거래완료</div>';
+        }
+
+        return '';
+    }
+
+    function formatRelativeTime(regDt) {
+        if (!regDt) {
+            return '';
+        }
+
+        const date = new Date(regDt);
+        const now = new Date();
+        const diffMs = now - date;
+
+        if (isNaN(diffMs)) {
+            return '';
+        }
+
+        const minutes = Math.floor(diffMs / 60000);
+        const hours = Math.floor(diffMs / 3600000);
+        const days = Math.floor(diffMs / 86400000);
+
+        if (minutes < 1) {
+            return '방금 전';
+        }
+
+        if (minutes < 60) {
+            return `${minutes}분 전`;
+        }
+
+        if (hours < 24) {
+            return `${hours}시간 전`;
+        }
+
+        if (days < 30) {
+            return `${days}일 전`;
+        }
+
+        return date.getFullYear() + '.' +
+            String(date.getMonth() + 1).padStart(2, '0') + '.' +
+            String(date.getDate()).padStart(2, '0');
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+</script>
+</body>
+</html>

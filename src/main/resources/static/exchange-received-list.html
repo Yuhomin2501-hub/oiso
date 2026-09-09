@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>받은 교환 목록</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/product.css">
+
+    <style>
+        .exchange-empty-box {
+            max-width: 760px;
+            margin: 40px auto 0;
+            padding: 38px 34px;
+            border-radius: 30px;
+            text-align: center;
+            background: linear-gradient(180deg, #fffdfb 0%, #fff5ec 100%);
+            border: 1px solid #f0dfd0;
+            box-shadow:
+                    8px 10px 24px rgba(202, 166, 133, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .exchange-empty-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #ffd0a1 0%, #ffad6b 100%);
+            border: 1px solid #e9823a;
+            color: #ffffff;
+            font-size: 34px;
+            box-shadow:
+                    6px 8px 18px rgba(220, 104, 28, 0.22),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        .exchange-empty-title {
+            margin: 0;
+            color: #70482c;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+        }
+
+        .exchange-empty-desc {
+            margin: 12px 0 22px;
+            color: #876955;
+            font-size: 15px;
+            line-height: 1.8;
+            font-weight: 700;
+        }
+
+        .exchange-empty-tip {
+            margin: 0 auto 24px;
+            padding: 16px 18px;
+            max-width: 560px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, #fff4e8 0%, #ffe4c8 100%);
+            border: 1px solid #f0bf8c;
+            color: #7a3d17;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+    <div class="drawer-top">
+        <div class="drawer-logo">oiso</div>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+
+    <p class="drawer-title">
+        필요한 메뉴를 선택해서<br>
+        원하는 화면으로 바로 이동할 수 있어요.
+    </p>
+
+    <nav class="drawer-menu">
+        <a class="drawer-menu-link" href="/index.html">메인</a>
+        <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+        <a class="drawer-menu-link" href="/category/category.html">카테고리</a>
+        <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+        <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+        <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+        <a class="drawer-menu-link current-menu" href="/exchange-received-list.html">받은 교환</a>
+        <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+        <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+        <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+        <a class="drawer-menu-link" href="/exchange-guide.html">교환 가이드</a>
+    </nav>
+
+    <div class="drawer-bottom">현재 페이지: 받은 교환</div>
+</aside>
+
+<div class="sub-top-bar">
+    <button class="hamburger-button" onclick="openDrawer()">☰</button>
+    <a href="/index.html" class="sub-home-link">oiso</a>
+    <div class="sub-right-actions" id="subRightActions"></div>
+</div>
+
+<div class="page-body">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">받은 교환 목록</h1>
+            <p class="page-subtitle">
+                다른 사용자가 내 상품에 보낸 교환 신청을 확인하고 처리할 수 있습니다.
+            </p>
+        </div>
+        <div class="button-row">
+            <a class="menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+            <a class="menu-link" href="/chat-room-list.html">채팅방</a>
+        </div>
+    </div>
+
+    <div id="exchangeContainer" class="product-container exchange-list-container"></div>
+</div>
+
+<script>
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+    function openDrawer() {
+        sideDrawer.classList.add('open');
+        drawerBackdrop.classList.add('show');
+    }
+
+    function closeDrawer() {
+        sideDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('show');
+    }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+        window.location.href = '/users/logout';
+    }
+
+    function renderSubRightActions(userData) {
+        const subRightActions = document.getElementById('subRightActions');
+
+        if (!subRightActions) {
+            return;
+        }
+
+        if (userData.loggedIn) {
+            subRightActions.innerHTML = `
+                <a href="/mypage.html" class="main-icon-link" title="마이페이지">
+                    <span class="person-icon person-icon-small"></span>
+                </a>
+                <button type="button" class="main-login-link main-logout-button" onclick="logout()">로그아웃</button>
+            `;
+        } else {
+            subRightActions.innerHTML = '';
+        }
+    }
+
+    checkLoginAndLoadExchangeList();
+
+    function checkLoginAndLoadExchangeList() {
+        fetch('/users/me-data')
+            .then(response => response.json())
+            .then(userData => {
+                renderSubRightActions(userData);
+
+                const container = document.getElementById('exchangeContainer');
+
+                if (!userData.loggedIn) {
+                    container.className = '';
+                    container.innerHTML = renderLoginRequiredBox();
+                    return;
+                }
+
+                loadExchangeList();
+            })
+            .catch(error => {
+                const container = document.getElementById('exchangeContainer');
+                container.className = '';
+                container.innerHTML = renderLoginRequiredBox();
+                console.error(error);
+            });
+    }
+
+    function loadExchangeList() {
+        fetch('/exchanges/received-data')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('exchangeContainer');
+
+                if (!Array.isArray(data)) {
+                    container.className = '';
+                    container.innerHTML = '<div class="empty-message">교환 정보를 불러오지 못했습니다.</div>';
+                    return;
+                }
+
+                if (data.length === 0) {
+                    container.className = '';
+                    container.innerHTML = renderReceivedExchangeEmptyBox();
+                    return;
+                }
+
+                let html = '';
+
+                data.forEach(exchange => {
+                    let actionButtons = '';
+
+                    if (exchange.exchangeStatus === '대기중') {
+                        actionButtons = `
+                            <button class="primary-button" onclick="updateExchangeStatus(${exchange.exchangeId}, '수락')">수락</button>
+                            <button class="secondary-button" onclick="updateExchangeStatus(${exchange.exchangeId}, '거절')">거절</button>
+                        `;
+                    }
+
+                    if (exchange.exchangeStatus === '수락') {
+                        actionButtons = `
+                            <button class="primary-button" onclick="completeExchange(${exchange.exchangeId})">거래완료</button>
+                            <button class="secondary-button" onclick="cancelExchange(${exchange.exchangeId})">거래취소</button>
+                        `;
+                    }
+
+                    const requesterDisplayName = exchange.requesterName || exchange.requesterEmail || '신청자';
+                    const exchangeCardClass = getExchangeCardClass(exchange.exchangeStatus);
+
+                    html += `
+                        <div class="${exchangeCardClass}">
+                            <div class="trade-card-top exchange-card-top">
+                                <div class="trade-card-title exchange-card-number">교환신청 #${exchange.exchangeId}</div>
+                                ${renderExchangeStatusBadge(exchange.exchangeStatus)}
+                            </div>
+
+                            <div class="exchange-product-grid">
+                                <div class="exchange-product-box">
+                                    <div class="exchange-product-image-wrap">
+                                        <img
+                                            src="${escapeHtml(exchange.targetProductImagePath || '')}"
+                                            alt="${escapeHtml(exchange.targetProductName || '내 상품')}"
+                                            class="exchange-product-image"
+                                        >
+                                    </div>
+                                    <div class="exchange-product-label">내 상품</div>
+                                    <div class="exchange-product-name">${escapeHtml(exchange.targetProductName || '삭제되었거나 없는 상품')}</div>
+                                </div>
+
+                                <div class="exchange-product-box">
+                                    <div class="exchange-product-image-wrap">
+                                        <img
+                                            src="${escapeHtml(exchange.requesterProductImagePath || '')}"
+                                            alt="${escapeHtml(exchange.requesterProductName || '상대 상품')}"
+                                            class="exchange-product-image"
+                                        >
+                                    </div>
+                                    <div class="exchange-product-label">상대 상품</div>
+                                    <div class="exchange-product-name">${escapeHtml(exchange.requesterProductName || '삭제되었거나 없는 상품')}</div>
+                                </div>
+                            </div>
+
+                            <div class="trade-info-list exchange-info-list">
+                                <div class="trade-info-line exchange-info-line"><strong>신청자</strong><span>${escapeHtml(requesterDisplayName)}</span></div>
+                                <div class="trade-info-line exchange-info-line"><strong>신청 메시지</strong><span>${escapeHtml(exchange.requestMsg == null ? '' : exchange.requestMsg)}</span></div>
+                                <div class="trade-info-line exchange-info-line"><strong>신청일</strong><span>${formatRelativeTime(exchange.regDt)}</span></div>
+                            </div>
+
+                            <div class="button-row">
+                                <a class="secondary-button" href="/product-detail.html?productId=${exchange.productId}">내 상품 보기</a>
+                                <a class="secondary-button" href="/product-detail.html?productId=${exchange.requesterProductId}">상대 상품 보기</a>
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.className = 'product-container exchange-list-container';
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                const container = document.getElementById('exchangeContainer');
+                container.className = '';
+                container.innerHTML = renderLoginRequiredBox();
+                console.error(error);
+            });
+    }
+
+    function getExchangeCardClass(exchangeStatus) {
+        if (exchangeStatus === '수락') {
+            return 'product-card trade-card exchange-card reserved-product-card';
+        }
+
+        if (exchangeStatus === '거래완료' ||
+            exchangeStatus === '거절' ||
+            exchangeStatus === '취소' ||
+            exchangeStatus === '거래취소' ||
+            exchangeStatus === '취소됨') {
+            return 'product-card trade-card exchange-card completed-product-card';
+        }
+
+        return 'product-card trade-card exchange-card';
+    }
+
+    function renderExchangeStatusBadge(exchangeStatus) {
+        if (exchangeStatus === '대기중') {
+            return '<div class="exchange-status-badge waiting">대기중</div>';
+        }
+
+        if (exchangeStatus === '수락') {
+            return '<div class="exchange-status-badge accepted">수락</div>';
+        }
+
+        if (exchangeStatus === '거절') {
+            return '<div class="exchange-status-badge rejected">거절</div>';
+        }
+
+        if (exchangeStatus === '거래완료') {
+            return '<div class="exchange-status-badge completed">거래완료</div>';
+        }
+
+        if (exchangeStatus === '취소' || exchangeStatus === '거래취소' || exchangeStatus === '취소됨') {
+            return `<div class="exchange-status-badge canceled">${escapeHtml(exchangeStatus)}</div>`;
+        }
+
+        return `<div class="exchange-status-badge default">${escapeHtml(exchangeStatus == null ? '' : exchangeStatus)}</div>`;
+    }
+
+    function renderReceivedExchangeEmptyBox() {
+        return `
+            <div class="exchange-empty-box">
+                <div class="exchange-empty-icon">🔄</div>
+                <h2 class="exchange-empty-title">아직 받은 교환 신청이 없습니다</h2>
+                <p class="exchange-empty-desc">
+                    다른 사용자가 내 상품에 교환 신청을 보내면<br>
+                    이곳에서 신청 내용을 확인하고 수락 또는 거절할 수 있습니다.
+                </p>
+                <div class="exchange-empty-tip">
+                    상품을 등록해두면 다른 사용자가 내 상품을 보고 교환을 제안할 수 있습니다.<br>
+                    받은 신청을 수락하면 채팅방이 자동으로 생성됩니다.
+                </div>
+                <div class="button-row" style="justify-content:center;">
+                    <a class="primary-button" href="/product-register.html">상품 등록하러 가기</a>
+                    <a class="secondary-button" href="/product-my-list.html">내 상품 보기</a>
+                    <a class="secondary-button" href="/product-list.html">전체 상품 둘러보기</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function updateExchangeStatus(exchangeId, exchangeStatus) {
+        fetch(`/exchanges/status?exchangeId=${encodeURIComponent(exchangeId)}&exchangeStatus=${encodeURIComponent(exchangeStatus)}`)
+            .then(response => response.text())
+            .then(result => {
+                if (result.includes('로그인')) {
+                    document.getElementById('exchangeContainer').className = '';
+                    document.getElementById('exchangeContainer').innerHTML = renderLoginRequiredBox();
+                    return;
+                }
+
+                alert(result);
+                loadExchangeList();
+            })
+            .catch(error => {
+                alert('로그인을 해야 이용이 가능합니다.');
+                console.error(error);
+            });
+    }
+
+    function completeExchange(exchangeId) {
+        fetch(`/exchanges/complete?exchangeId=${encodeURIComponent(exchangeId)}`)
+            .then(response => response.text())
+            .then(result => {
+                if (result.includes('로그인')) {
+                    document.getElementById('exchangeContainer').className = '';
+                    document.getElementById('exchangeContainer').innerHTML = renderLoginRequiredBox();
+                    return;
+                }
+
+                alert(result);
+                loadExchangeList();
+            })
+            .catch(error => {
+                alert('로그인을 해야 이용이 가능합니다.');
+                console.error(error);
+            });
+    }
+
+    function cancelExchange(exchangeId) {
+        if (!confirm('정말 거래를 취소하시겠습니까?\n거래취소 시 채팅방이 삭제되고 두 상품은 다시 판매중 상태로 돌아갑니다.')) {
+            return;
+        }
+
+        fetch(`/exchanges/cancel?exchangeId=${encodeURIComponent(exchangeId)}`)
+            .then(response => response.text())
+            .then(result => {
+                if (result.includes('로그인')) {
+                    document.getElementById('exchangeContainer').className = '';
+                    document.getElementById('exchangeContainer').innerHTML = renderLoginRequiredBox();
+                    return;
+                }
+
+                alert(result);
+                loadExchangeList();
+            })
+            .catch(error => {
+                alert('로그인을 해야 이용이 가능합니다.');
+                console.error(error);
+            });
+    }
+
+    function renderLoginRequiredBox() {
+        return `
+            <div class="login-required-box">
+                <h2 class="login-required-title">로그인이 필요합니다</h2>
+                <p class="login-required-desc">
+                    받은 교환 목록은 로그인한 뒤 확인할 수 있습니다.<br>
+                    먼저 로그인한 뒤 다시 이용해주세요.
+                </p>
+                <div class="button-row" style="justify-content: center;">
+                    <a class="primary-button" href="/login.html">로그인하러 가기</a>
+                    <a class="secondary-button" href="/index.html">메인으로 이동</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function formatRelativeTime(dateText) {
+        if (!dateText) {
+            return '';
+        }
+
+        const targetDate = new Date(dateText);
+
+        if (Number.isNaN(targetDate.getTime())) {
+            return dateText;
+        }
+
+        const now = new Date();
+        const diffSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000);
+
+        if (diffSeconds < 60) {
+            return '방금 전';
+        }
+
+        const diffMinutes = Math.floor(diffSeconds / 60);
+
+        if (diffMinutes < 60) {
+            return `${diffMinutes}분 전`;
+        }
+
+        const diffHours = Math.floor(diffMinutes / 60);
+
+        if (diffHours < 24) {
+            return `${diffHours}시간 전`;
+        }
+
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffDays < 30) {
+            return `${diffDays}일 전`;
+        }
+
+        return dateText.replace('T', ' ');
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+</script>
+</body>
+</html>

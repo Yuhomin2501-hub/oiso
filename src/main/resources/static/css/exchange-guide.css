@@ -1,0 +1,200 @@
+.guide-hero {
+    padding: 38px 34px;
+    margin-bottom: 24px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #fff4e5 0%, #ffe0bf 45%, #ffd09a 100%);
+    border: 1px solid #f3c89e;
+    box-shadow:
+            10px 14px 28px rgba(229, 161, 93, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.guide-hero-title {
+    margin: 0 0 14px;
+    font-size: 38px;
+    color: #6f4323;
+}
+
+.guide-hero-desc {
+    margin: 0;
+    max-width: 980px;
+    color: #7b563d;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+.guide-hero-desc-line {
+    display: block;
+}
+
+.guide-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.guide-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    color: #8a572f;
+    font-size: 14px;
+    font-weight: 800;
+    border: 1px solid rgba(241, 180, 117, 0.8);
+    box-shadow:
+            4px 6px 14px rgba(224, 150, 84, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.guide-highlight-box {
+    margin-bottom: 22px;
+    padding: 24px 26px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, #fff9f4 0%, #fff0df 100%);
+    border: 1px solid #f2dac3;
+    box-shadow:
+            8px 10px 22px rgba(209, 167, 124, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.guide-highlight-title {
+    margin: 0 0 10px;
+    font-size: 24px;
+    color: #70482c;
+}
+
+.guide-highlight-desc {
+    margin: 0;
+    color: #8a6a54;
+    line-height: 1.8;
+}
+
+.guide-step-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.guide-step-card {
+    padding: 26px 22px;
+    border-radius: 26px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 247, 240, 0.96) 100%);
+    border: 1px solid #f1dfcf;
+    box-shadow:
+            8px 10px 24px rgba(209, 167, 124, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.guide-step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #ffc98f 0%, #ffb56e 58%, #f7a253 100%);
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 18px;
+    box-shadow:
+            4px 6px 14px rgba(224, 150, 84, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.guide-step-card h3 {
+    margin: 0 0 10px;
+    color: #70482c;
+    font-size: 21px;
+}
+
+.guide-step-card p {
+    margin: 0;
+    color: #8a6a54;
+    line-height: 1.7;
+}
+
+.guide-point-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.guide-point-card {
+    padding: 26px 24px;
+    border-radius: 26px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 248, 242, 0.97) 100%);
+    border: 1px solid #f1dfcf;
+    box-shadow:
+            8px 10px 24px rgba(209, 167, 124, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.guide-point-card h2 {
+    margin: 0 0 14px;
+    color: #70482c;
+    font-size: 24px;
+}
+
+.guide-point-card ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #8a6a54;
+    line-height: 1.8;
+}
+
+.guide-notice-box {
+    margin-bottom: 24px;
+    padding: 26px 28px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #fff3e8 0%, #ffe6cb 100%);
+    border: 1px solid #f0c99d;
+    box-shadow:
+            10px 12px 24px rgba(224, 150, 84, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.guide-notice-box h2 {
+    margin: 0 0 12px;
+    color: #74452a;
+    font-size: 25px;
+}
+
+.guide-notice-box p {
+    margin: 0;
+    color: #835e45;
+    line-height: 1.8;
+    font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+    .guide-step-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .guide-hero {
+        padding: 28px 24px;
+    }
+
+    .guide-hero-title {
+        font-size: 30px;
+    }
+
+    .guide-hero-desc-line {
+        display: inline;
+    }
+
+    .guide-step-grid,
+    .guide-point-grid {
+        grid-template-columns: 1fr;
+    }
+}

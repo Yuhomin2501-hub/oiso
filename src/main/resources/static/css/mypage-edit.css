@@ -1,0 +1,177 @@
+.mypage-edit-wrap {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 34px 18px 70px;
+}
+
+.mypage-edit-card {
+    width: 100%;
+    max-width: 520px;
+    padding: 32px 30px 28px;
+    border-radius: 34px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 249, 243, 0.97) 100%);
+    border: 1px solid #f1dfcf;
+    box-shadow:
+            10px 12px 26px rgba(186, 130, 77, 0.14),
+            -3px -3px 12px rgba(255, 255, 255, 0.75),
+            inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.mypage-edit-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.mypage-edit-icon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #ffbd73 0%, #ff9f3f 100%);
+    color: #ffffff;
+    font-size: 24px;
+    box-shadow:
+            0 8px 18px rgba(255, 150, 58, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.mypage-edit-title {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 900;
+    color: #70482c;
+    letter-spacing: -0.6px;
+}
+
+.mypage-edit-desc {
+    margin: 11px 0 0;
+    color: #8b6a55;
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+.mypage-edit-card .form-group {
+    margin-bottom: 15px;
+}
+
+.mypage-edit-card label {
+    display: block;
+    margin-bottom: 8px;
+    padding-left: 4px;
+    color: #70482c;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.mypage-edit-card .input-field {
+    width: 100%;
+    height: 48px;
+    padding: 0 18px;
+    border-radius: 18px;
+    border: 1px solid #efd4bd;
+    background: #fffdfb;
+    color: #4d3322;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    box-shadow:
+            inset 2px 3px 8px rgba(191, 143, 99, 0.06),
+            0 3px 8px rgba(207, 160, 116, 0.05);
+    transition: 0.18s ease;
+}
+
+.mypage-edit-card .input-field:focus {
+    border-color: #ffa64d;
+    background: #ffffff;
+    box-shadow:
+            0 0 0 4px rgba(255, 166, 77, 0.14),
+            inset 2px 3px 8px rgba(191, 143, 99, 0.05);
+}
+
+.mypage-edit-card .input-field:disabled {
+    background: #f8efe6;
+    color: #8c6d57;
+    cursor: not-allowed;
+}
+
+.mypage-edit-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.mypage-edit-actions .primary-button,
+.mypage-edit-actions .secondary-button {
+    min-width: 142px;
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.mypage-edit-actions .primary-button {
+    box-shadow:
+            0 8px 18px rgba(255, 150, 58, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.mypage-edit-actions .secondary-button {
+    background: #fff9f3;
+    color: #70482c;
+    border: 1px solid #efd4bd;
+    box-shadow:
+            0 6px 14px rgba(181, 132, 86, 0.10),
+            inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+#resultMessage {
+    margin-bottom: 18px;
+}
+
+#resultMessage .login-info-box,
+#resultMessage .login-error-box {
+    margin-bottom: 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .mypage-edit-wrap {
+        padding: 24px 14px 54px;
+    }
+
+    .mypage-edit-card {
+        max-width: 100%;
+        padding: 28px 20px 26px;
+        border-radius: 28px;
+    }
+
+    .mypage-edit-title {
+        font-size: 27px;
+    }
+
+    .mypage-edit-desc {
+        font-size: 13px;
+    }
+
+    .mypage-edit-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mypage-edit-actions .primary-button,
+    .mypage-edit-actions .secondary-button {
+        width: 100%;
+        min-width: 100%;
+    }
+}

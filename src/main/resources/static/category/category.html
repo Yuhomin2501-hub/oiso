@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>카테고리 - oiso</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/category.css">
+</head>
+<body>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<aside class="side-drawer" id="sideDrawer">
+  <div class="drawer-top">
+    <div class="drawer-logo">oiso</div>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+
+  <p class="drawer-title">
+    필요한 메뉴를 선택해서<br>
+    원하는 화면으로 바로 이동할 수 있어요.
+  </p>
+
+  <nav class="drawer-menu">
+    <a class="drawer-menu-link" href="/index.html">메인</a>
+    <a class="drawer-menu-link" href="/product-list.html">상품목록</a>
+    <a class="drawer-menu-link current-menu" href="/category/category.html">카테고리</a>
+    <a class="drawer-menu-link" href="/product-register.html">상품등록</a>
+    <a class="drawer-menu-link" href="/product-my-list.html">내 상품</a>
+    <a class="drawer-menu-link" href="/exchange-requested-list.html">내가 신청한 교환</a>
+    <a class="drawer-menu-link" href="/exchange-received-list.html">받은 교환</a>
+    <a class="drawer-menu-link" href="/chat-room-list.html">채팅방</a>
+    <a class="drawer-menu-link" href="/report-my-list.html">내 신고</a>
+    <a class="drawer-menu-link" href="/report-all-list.html">전체 신고</a>
+    <a class="drawer-menu-link" href="/exchange-guide.html">교환 가이드</a>
+  </nav>
+
+  <div class="drawer-bottom" id="drawerBottomText">
+    상품을 카테고리별로 나눠서<br>
+    더 쉽게 찾아볼 수 있는 페이지입니다.
+  </div>
+</aside>
+
+<div class="sub-top-bar">
+  <button class="hamburger-button" onclick="openDrawer()">☰</button>
+  <a href="/index.html" class="sub-home-link">oiso</a>
+  <div class="sub-right-actions" id="subRightActions"></div>
+</div>
+
+<div class="category-page-wrap">
+  <div class="category-hero">
+    <h1>카테고리</h1>
+    <p>
+      원하는 분류를 선택해서 해당 카테고리 상품 화면으로 이동할 수 있습니다.<br>
+      전체 / 의류 / 전자기기 / 도서 / 생활용품 / 기타 로 나누어 보실 수 있어요.
+    </p>
+  </div>
+
+  <div class="category-grid">
+    <a class="category-tile" href="/category/category-all.html">
+      <div class="category-icon">🧺</div>
+      <div class="category-name">전체</div>
+      <div class="category-desc">등록된 상품을 전체 기준으로 볼 수 있는 화면입니다.</div>
+    </a>
+
+    <a class="category-tile" href="/category/category-clothes.html">
+      <div class="category-icon">👕</div>
+      <div class="category-name">의류</div>
+      <div class="category-desc">옷, 패션잡화 등 의류 관련 상품을 보는 화면입니다.</div>
+    </a>
+
+    <a class="category-tile" href="/category/category-electronics.html">
+      <div class="category-icon">📱</div>
+      <div class="category-name">전자기기</div>
+      <div class="category-desc">휴대폰, 태블릿, 소형 전자기기 등을 보는 화면입니다.</div>
+    </a>
+
+    <a class="category-tile" href="/category/category-book.html">
+      <div class="category-icon">📚</div>
+      <div class="category-name">도서</div>
+      <div class="category-desc">전공서적, 소설, 참고서 등 도서 상품을 보는 화면입니다.</div>
+    </a>
+
+    <a class="category-tile" href="/category/category-living.html">
+      <div class="category-icon">🪑</div>
+      <div class="category-name">생활용품</div>
+      <div class="category-desc">생활에 필요한 다양한 용품을 보는 화면입니다.</div>
+    </a>
+
+    <a class="category-tile" href="/category/category-etc.html">
+      <div class="category-icon">📦</div>
+      <div class="category-name">기타</div>
+      <div class="category-desc">위 분류에 속하지 않는 기타 상품을 보는 화면입니다.</div>
+    </a>
+  </div>
+</div>
+
+<script>
+  const sideDrawer = document.getElementById('sideDrawer');
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+  function openDrawer() {
+    sideDrawer.classList.add('open');
+    drawerBackdrop.classList.add('show');
+  }
+
+  function closeDrawer() {
+    sideDrawer.classList.remove('open');
+    drawerBackdrop.classList.remove('show');
+  }
+
+  function logout() {
+    alert('로그아웃되었습니다.');
+    window.location.href = '/users/logout';
+  }
+
+  function renderSubRightActions() {
+    fetch('/users/me-data')
+            .then(response => response.json())
+            .then(userData => {
+              const subRightActions = document.getElementById('subRightActions');
+
+              if (!subRightActions) {
+                return;
+              }
+
+              if (userData.loggedIn) {
+                subRightActions.innerHTML = `
+            <a href="/mypage.html" class="main-icon-link" title="마이페이지">
+              <span class="person-icon person-icon-small"></span>
+            </a>
+            <button type="button" class="main-login-link main-logout-button" onclick="logout()">로그아웃</button>
+          `;
+              } else {
+                subRightActions.innerHTML = '';
+              }
+            })
+            .catch(error => {
+              console.error(error);
+            });
+  }
+
+  renderSubRightActions();
+
+  window.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      closeDrawer();
+    }
+  });
+</script>
+</body>
+</html>

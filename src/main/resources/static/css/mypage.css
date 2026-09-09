@@ -1,0 +1,320 @@
+.mypage-wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 20px 20px 60px;
+}
+
+.mypage-shell {
+    position: relative;
+    overflow: hidden;
+}
+
+.mypage-hero-label-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.mypage-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 26px;
+}
+
+.mypage-hero-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #fff1dc 0%, #ffd39f 100%);
+    color: #b05f1d;
+    font-size: 15px;
+    font-weight: 900;
+    border: 1px solid #efbc7f;
+    box-shadow:
+            5px 7px 16px rgba(224, 150, 84, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.88);
+    letter-spacing: 0.5px;
+}
+
+.mypage-hero-title {
+    margin: 0 0 10px;
+    font-size: 42px;
+    color: #70482c;
+}
+
+.mypage-hero-desc {
+    margin: 0;
+    color: #8d6d58;
+    line-height: 1.8;
+    font-size: 16px;
+}
+
+.mypage-profile-badge {
+    width: 84px;
+    min-width: 84px;
+    height: 84px;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #ffd5ad 0%, #ffbb7a 52%, #f4a152 100%);
+    box-shadow:
+            8px 10px 22px rgba(232, 164, 98, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.person-icon {
+    position: relative;
+    display: inline-block;
+    color: #ffffff;
+}
+
+.person-icon::before,
+.person-icon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: currentColor;
+}
+
+.person-icon::before {
+    border-radius: 50%;
+}
+
+.person-icon::after {
+    border-radius: 999px 999px 18px 18px;
+}
+
+.person-icon-large {
+    width: 34px;
+    height: 40px;
+}
+
+.person-icon-large::before {
+    top: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.person-icon-large::after {
+    bottom: 0;
+    width: 30px;
+    height: 20px;
+}
+
+.mypage-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.mypage-summary-card {
+    padding: 22px 18px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #fffdfb 0%, #fff4ea 100%);
+    border: 1px solid #f0dfd0;
+    box-shadow:
+            6px 8px 18px rgba(202, 166, 133, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    text-align: center;
+}
+
+.mypage-summary-label {
+    color: #8b6b55;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.mypage-summary-value {
+    margin-top: 10px;
+    font-size: 34px;
+    font-weight: 900;
+    color: #70482c;
+}
+
+.mypage-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.mypage-info-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 18px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #fffdfb 0%, #fff4ea 100%);
+    border: 1px solid #f0dfd0;
+    box-shadow:
+            6px 8px 16px rgba(202, 166, 133, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.mypage-info-icon {
+    width: 52px;
+    min-width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #fff4e6 0%, #ffe6cb 100%);
+    border: 1px solid #f1cfaa;
+    font-size: 24px;
+}
+
+.mypage-info-content {
+    min-width: 0;
+}
+
+.mypage-info-label {
+    color: #8b6b55;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.mypage-info-value {
+    margin-top: 6px;
+    color: #70482c;
+    font-size: 20px;
+    font-weight: 700;
+    word-break: break-all;
+}
+
+.mypage-shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.mypage-shortcut-card {
+    width: 100%;
+    padding: 22px 20px;
+    text-align: left;
+    border-radius: 24px;
+    border: 1px solid #f0dfd0;
+    background: linear-gradient(180deg, #fffdfb 0%, #fff5ec 100%);
+    box-shadow:
+            6px 8px 18px rgba(202, 166, 133, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    cursor: pointer;
+}
+
+.mypage-shortcut-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+            8px 10px 20px rgba(202, 166, 133, 0.14),
+            inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.mypage-shortcut-accent {
+    background: linear-gradient(180deg, #fff2e2 0%, #ffd4aa 100%);
+    border-color: #eaaf6f;
+    box-shadow:
+            8px 10px 20px rgba(224, 150, 84, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.mypage-shortcut-accent:hover {
+    background: linear-gradient(180deg, #ffebd8 0%, #ffc78f 100%);
+    box-shadow:
+            10px 12px 24px rgba(224, 150, 84, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.mypage-shortcut-card.danger {
+    background: linear-gradient(180deg, #ffe9e9 0%, #ffbfbf 100%);
+    border-color: #ec8f8f;
+    box-shadow:
+            8px 10px 20px rgba(217, 75, 75, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.86);
+}
+
+.mypage-shortcut-card.danger:hover {
+    background: linear-gradient(180deg, #ffe0e0 0%, #ffb0b0 100%);
+    box-shadow:
+            10px 12px 24px rgba(217, 75, 75, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.mypage-shortcut-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    background: linear-gradient(180deg, #ffbf7b 0%, #fca85b 58%, #ef9541 100%);
+    font-size: 24px;
+    box-shadow:
+            6px 8px 18px rgba(232, 164, 98, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.mypage-shortcut-card.danger .mypage-shortcut-icon {
+    background: linear-gradient(180deg, #ff8080 0%, #ef6161 58%, #de4a4a 100%);
+    color: #ffffff;
+    box-shadow:
+            6px 8px 18px rgba(217, 75, 75, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.mypage-shortcut-title {
+    color: #70482c;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.mypage-shortcut-desc {
+    margin-top: 8px;
+    color: #8a6a54;
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+@media (max-width: 1024px) {
+    .mypage-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mypage-shortcut-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .mypage-wrap {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .mypage-summary-grid,
+    .mypage-info-grid,
+    .mypage-shortcut-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mypage-card {
+        padding: 24px;
+    }
+
+    .mypage-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mypage-hero-title {
+        font-size: 29px;
+    }
+}
