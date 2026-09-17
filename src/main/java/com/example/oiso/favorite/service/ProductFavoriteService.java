@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class ProductFavoriteService {
@@ -98,5 +99,14 @@ public class ProductFavoriteService {
                 userEmail,
                 productId
         );
+    }
+    // 현재 사용자가 찜한 모든 상품번호 조회
+    public List<Integer> getFavoriteProductIds(String userEmail) {
+
+        return productFavoriteRepository
+                .findByUserEmailOrderByFavoriteIdDesc(userEmail)
+                .stream()
+                .map(ProductFavorite::getProductId)
+                .toList();
     }
 }

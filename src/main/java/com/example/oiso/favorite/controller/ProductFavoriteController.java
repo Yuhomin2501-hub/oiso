@@ -4,6 +4,8 @@ import com.example.oiso.favorite.service.ProductFavoriteService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/favorites")
 public class ProductFavoriteController {
@@ -72,6 +74,21 @@ public class ProductFavoriteController {
         return productFavoriteService.isFavorite(
                 loginUserEmail.toString(),
                 productId
+        );
+    }
+    // 현재 로그인한 사용자가 찜한 상품번호 목록 조회
+    @GetMapping("/my-product-ids")
+    public List<Integer> getMyFavoriteProductIds(HttpSession session) {
+
+        Object loginUserEmail = session.getAttribute("loginUserEmail");
+
+        // 로그인하지 않았으면 빈 목록 반환
+        if (loginUserEmail == null) {
+            return List.of();
+        }
+
+        return productFavoriteService.getFavoriteProductIds(
+                loginUserEmail.toString()
         );
     }
 }
