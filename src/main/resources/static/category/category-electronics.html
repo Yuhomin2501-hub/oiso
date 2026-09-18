@@ -6,6 +6,43 @@
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/category.css">
   <link rel="stylesheet" href="/css/product.css">
+  <style>
+    .favorite-button {
+      position: absolute;
+      top: 28px;
+      right: 28px;
+      z-index: 10;
+
+      width: 44px;
+      height: 44px;
+
+      border: none;
+      border-radius: 50%;
+
+      background: rgba(255, 255, 255, 0.92);
+
+      font-size: 27px;
+      line-height: 1;
+
+      cursor: pointer;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: #9a7358;
+
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    }
+
+    .favorite-button:hover {
+      transform: scale(1.08);
+    }
+
+    .favorite-button.active {
+      color: #e85a5a;
+    }
+  </style>
 </head>
 <body>
 <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
@@ -75,6 +112,8 @@
   const sideDrawer = document.getElementById('sideDrawer');
   const drawerBackdrop = document.getElementById('drawerBackdrop');
 
+  let favoriteProductIds = new Set();
+
   function openDrawer() {
     sideDrawer.classList.add('open');
     drawerBackdrop.classList.add('show');
@@ -116,6 +155,24 @@
             });
   }
 
+  function loadFavoriteProductIds() {
+
+    return fetch('/favorites/my-product-ids')
+            .then(response => response.json())
+            .then(data => {
+
+              if (Array.isArray(data)) {
+                favoriteProductIds = new Set(data);
+              } else {
+                favoriteProductIds = new Set();
+              }
+            })
+            .catch(error => {
+              favoriteProductIds = new Set();
+              console.error(error);
+            });
+  }
+
   function loadCategoryProducts() {
     fetch('/products/category-data?category=' + encodeURIComponent('전자기기'))
             .then(response => response.json())
@@ -150,42 +207,121 @@
     let html = '';
 
     data.forEach(product => {
+
       const productStatus = product.productStatus || '';
       const reported = product.reported === true;
 
       const cardClass = getProductCardClass(productStatus, reported);
       const statusBadge = renderImageStatusBadge(productStatus, reported);
 
+      const favorite = favoriteProductIds.has(product.productId);
+
       html += `
-        <a href="/product-detail.html?productId=${product.productId}" style="text-decoration:none; color:inherit;">
-          <div class="${cardClass}" style="padding:18px; overflow:hidden;">
-            <div class="product-image-wrap" style="width:100%; aspect-ratio:1 / 1; border-radius:22px; overflow:hidden; background:#fff4ea; border:1px solid #f0dfd0;">
-              ${statusBadge}
-              <img
-                src="${escapeHtml(product.productImagePath)}"
-                alt="${escapeHtml(product.productName)}"
-                style="width:100%; height:100%; object-fit:cover; display:block;"
-              >
-            </div>
+        <div class="${cardClass}" style="padding:18px; overflow:hidden; position:relative;">
 
-            <div style="margin-top:14px; font-size:21px; font-weight:800; color:#714a2f; line-height:1.4;">
-              ${escapeHtml(product.productName)}
-            </div>
+            <button
+                type="button"
+                class="favorite-button ${favorite ? 'active' : ''}"
+                onclick="toggleFavorite(event, ${product.productId}, this)"
+                title="${favorite ? '찜 취소' : '찜하기'}"
+                aria-pressed="${favorite}"
+            >
+                ${favorite ? '♥' : '♡'}
+            </button>
 
-            <div style="margin-top:8px; color:#7f6656; font-size:14px;">
-              ${escapeHtml(product.category == null ? '' : product.category)}
-            </div>
+            <a
+                href="/product-detail.html?productId=${product.productId}"
+                style="text-decoration:none; color:inherit; display:block;"
+            >
+                <div
+                    class="product-image-wrap"
+                    style="width:100%; aspect-ratio:1 / 1; border-radius:22px; overflow:hidden; background:#fff4ea; border:1px solid #f0dfd0;"
+                >
+                    ${statusBadge}
 
-            <div style="margin-top:6px; color:#90715c; font-size:14px;">
-              ${formatRelativeTime(product.regDt)}
-            </div>
-          </div>
-        </a>
-      `;
+                    <img
+                        src="${escapeHtml(product.productImagePath)}"
+                        alt="${escapeHtml(product.productName)}"
+                        style="width:100%; height:100%; object-fit:cover; display:block;"
+                    >
+                </div>
+
+                <div style="margin-top:14px; font-size:21px; font-weight:800; color:#714a2f; line-height:1.4;">
+                    ${escapeHtml(product.productName)}
+                </div>
+
+                <div style="margin-top:8px; color:#7f6656; font-size:14px;">
+                    ${escapeHtml(product.category == null ? '' : product.category)}
+                </div>
+
+                <div style="margin-top:6px; color:#90715c; font-size:14px;">
+                    ${formatRelativeTime(product.regDt)}
+                </div>
+
+            </a>
+
+        </div>
+    `;
     });
 
     container.className = 'product-container';
     container.innerHTML = html;
+  }
+
+  function toggleFavorite(event, productId, button) {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const favorite = favoriteProductIds.has(productId);
+
+    const url = favorite
+            ? `/favorites/delete?productId=${encodeURIComponent(productId)}`
+            : `/favorites/add?productId=${encodeURIComponent(productId)}`;
+
+    fetch(url, {
+      method: 'POST'
+    })
+            .then(response => response.text())
+            .then(result => {
+
+              if (result.includes('로그인')) {
+                alert('로그인 후 이용 가능합니다.');
+                return;
+              }
+
+              if (result === '찜 추가 완료' ||
+                      result === '이미 찜한 상품입니다.') {
+
+                favoriteProductIds.add(productId);
+
+                button.innerText = '♥';
+                button.classList.add('active');
+                button.title = '찜 취소';
+                button.setAttribute('aria-pressed', 'true');
+
+                return;
+              }
+
+              if (result === '찜 삭제 완료' ||
+                      result === '찜하지 않은 상품입니다.') {
+
+                favoriteProductIds.delete(productId);
+
+                button.innerText = '♡';
+                button.classList.remove('active');
+                button.title = '찜하기';
+                button.setAttribute('aria-pressed', 'false');
+
+                return;
+              }
+
+              alert(result);
+            })
+            .catch(error => {
+              alert('찜 처리 중 문제가 발생했습니다.');
+              console.error(error);
+            });
   }
 
   function getProductCardClass(productStatus, reported) {
@@ -276,7 +412,9 @@
   }
 
   renderSubRightActions();
-  loadCategoryProducts();
+
+  loadFavoriteProductIds()
+          .then(() => loadCategoryProducts());
 
   window.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {

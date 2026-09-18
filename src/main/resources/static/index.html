@@ -58,6 +58,42 @@
             border: 1px solid #2b3035;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
         }
+
+        .main-favorite-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 3;
+
+            width: 42px;
+            height: 42px;
+
+            border: none;
+            border-radius: 50%;
+
+            background: rgba(255, 255, 255, 0.92);
+
+            font-size: 26px;
+            line-height: 1;
+
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #9a7358;
+
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+        }
+
+        .main-favorite-button:hover {
+            transform: scale(1.08);
+        }
+
+        .main-favorite-button.active {
+            color: #e85a5a;
+        }
     </style>
 </head>
 <body>
@@ -164,6 +200,8 @@
     const sideDrawer = document.getElementById('sideDrawer');
     const drawerBackdrop = document.getElementById('drawerBackdrop');
 
+    let favoriteProductIds = new Set();
+
     function openDrawer() {
         sideDrawer.classList.add('open');
         drawerBackdrop.classList.add('show');
@@ -188,6 +226,23 @@
         }
 
         window.location.href = `/product-list.html?keyword=${encodeURIComponent(keyword)}`;
+    }
+
+    function loadFavoriteProductIds() {
+
+        return fetch('/favorites/my-product-ids')
+            .then(response => response.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    favoriteProductIds = new Set(data);
+                } else {
+                    favoriteProductIds = new Set();
+                }
+            })
+            .catch(error => {
+                favoriteProductIds = new Set();
+                console.error(error);
+            });
     }
 
     document.getElementById('mainSearchKeyword').addEventListener('keydown', function(event) {
@@ -235,7 +290,10 @@
             console.error(error);
         });
 
-    fetch('/products/latest-data')
+    loadFavoriteProductIds()
+        .then(() => {
+            return fetch('/products/latest-data');
+        })
         .then(response => response.json())
         .then(data => {
             renderLatestProducts(Array.isArray(data) ? data : []);
@@ -269,24 +327,112 @@
             const cardClass = getLatestCardClass(productStatus);
             const statusBadge = renderLatestStatusBadge(productStatus);
 
+            const favorite = favoriteProductIds.has(product.productId);
+
             return `
-                <a href="/product-detail.html?productId=${product.productId}" class="${cardClass}">
-                    <div class="main-latest-image-wrap">
-                        ${statusBadge}
-                        <img src="${imagePath}" alt="${productName}" class="main-latest-image">
-                    </div>
-                    <div class="main-latest-content">
-                        <div class="main-latest-category">${category}</div>
-                        <h3 class="main-latest-name">${productName}</h3>
-                        <p class="main-latest-desc">${desc}</p>
-                        <div class="main-latest-meta">
-                            <span>${userName}</span>
-                            <span>${relativeTime}</span>
-                        </div>
-                    </div>
-                </a>
-            `;
+    <div class="${cardClass}" style="position:relative;">
+
+        <button
+            type="button"
+            class="main-favorite-button ${favorite ? 'active' : ''}"
+            onclick="toggleFavorite(event, ${product.productId}, this)"
+            title="${favorite ? '찜 취소' : '찜하기'}"
+            aria-pressed="${favorite}"
+        >
+            ${favorite ? '♥' : '♡'}
+        </button>
+
+        <a
+            href="/product-detail.html?productId=${product.productId}"
+            style="text-decoration:none; color:inherit; display:block;"
+        >
+            <div class="main-latest-image-wrap">
+                ${statusBadge}
+
+                <img
+                    src="${imagePath}"
+                    alt="${productName}"
+                    class="main-latest-image"
+                >
+            </div>
+
+            <div class="main-latest-content">
+                <div class="main-latest-category">${category}</div>
+
+                <h3 class="main-latest-name">
+                    ${productName}
+                </h3>
+
+                <p class="main-latest-desc">
+                    ${desc}
+                </p>
+
+                <div class="main-latest-meta">
+                    <span>${userName}</span>
+                    <span>${relativeTime}</span>
+                </div>
+            </div>
+        </a>
+
+    </div>
+`;
         }).join('');
+    }
+
+    function toggleFavorite(event, productId, button) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const favorite = favoriteProductIds.has(productId);
+
+        const url = favorite
+            ? `/favorites/delete?productId=${encodeURIComponent(productId)}`
+            : `/favorites/add?productId=${encodeURIComponent(productId)}`;
+
+        fetch(url, {
+            method: 'POST'
+        })
+            .then(response => response.text())
+            .then(result => {
+
+                if (result.includes('로그인')) {
+                    alert('로그인 후 이용 가능합니다.');
+                    return;
+                }
+
+                if (result === '찜 추가 완료' ||
+                    result === '이미 찜한 상품입니다.') {
+
+                    favoriteProductIds.add(productId);
+
+                    button.innerText = '♥';
+                    button.classList.add('active');
+                    button.title = '찜 취소';
+                    button.setAttribute('aria-pressed', 'true');
+
+                    return;
+                }
+
+                if (result === '찜 삭제 완료' ||
+                    result === '찜하지 않은 상품입니다.') {
+
+                    favoriteProductIds.delete(productId);
+
+                    button.innerText = '♡';
+                    button.classList.remove('active');
+                    button.title = '찜하기';
+                    button.setAttribute('aria-pressed', 'false');
+
+                    return;
+                }
+
+                alert(result);
+            })
+            .catch(error => {
+                alert('찜 처리 중 문제가 발생했습니다.');
+                console.error(error);
+            });
     }
 
     function getLatestCardClass(productStatus) {
