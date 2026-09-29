@@ -43,6 +43,9 @@ public class Product {
     @Column(name = "reg_dt", nullable = false)  // reg_dt 컬럼과 매핑, null 불가
     private LocalDateTime regDt;  // 상품 등록일시
 
+    @Column(name = "view_count", nullable = false)
+    private int viewCount = 0;   // 상품 조회수
+
     public Product(String userEmail,
                    String productName,
                    String category,
@@ -71,5 +74,9 @@ public class Product {
 
     public void updateProductStatus(String productStatus) {
         this.productStatus = productStatus;
-    } // 판매중, 예약중, 거래완료 같은 상태값으로 변경
-}   // 상품 상태만 변경하는 메서드
+    } // 판매중, 예약중, 거래완료 같은 상태값으로 변경 // 상품 상태만 변경하는 메서드
+
+    public void increaseViewCount() {
+        this.viewCount++;               // 상품 상세페이지를 조회할 때 조회수 1 증가
+    }
+}

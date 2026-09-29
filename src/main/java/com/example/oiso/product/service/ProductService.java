@@ -284,6 +284,10 @@ public class ProductService {       // 상품 등록,조회,수정,삭제,이미
             return null; // null 반환
         }
 
+        // 상품 상세페이지 조회 시 조회수 1 증가
+        product.increaseViewCount();
+        productRepository.save(product);
+
         boolean myProduct = loginUserEmail != null && loginUserEmail.equals(product.getUserEmail()); // 현재 로그인 사용자의 상품인지 판단
         boolean reported = isReportedProduct(product.getProductId()); // 해당 상품이 신고된 상품인지 확인
 
@@ -300,7 +304,8 @@ public class ProductService {       // 상품 등록,조회,수정,삭제,이미
                 product.getProductStatus(), // 상품 상태
                 product.getRegDt(), // 등록일
                 myProduct, // 내 상품 여부
-                reported // 신고 여부
+                reported, // 신고 여부
+                product.getViewCount()
         );
     }
 
@@ -560,7 +565,8 @@ public class ProductService {       // 상품 등록,조회,수정,삭제,이미
                     product.getProductStatus(), // 상품 상태
                     product.getRegDt(), // 등록일
                     myProduct, // 내 상품 여부
-                    reported // 신고 여부
+                    reported, // 신고 여부
+                    product.getViewCount()
             ));
         }
 

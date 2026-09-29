@@ -18,6 +18,7 @@ public class ProductResponseDto {           // 상품 1개의 전체 정보를 �
     private LocalDateTime regDt;
     private boolean myProduct;
     private boolean reported;
+    private int viewCount;
 
     public ProductResponseDto(Integer productId,
                               String userEmail,
@@ -31,7 +32,8 @@ public class ProductResponseDto {           // 상품 1개의 전체 정보를 �
                               String productStatus,
                               LocalDateTime regDt,
                               boolean myProduct,
-                              boolean reported) {
+                              boolean reported,
+                              int viewCount){
         this.productId = productId;
         this.userEmail = userEmail;
         this.userName = userName;
@@ -45,6 +47,7 @@ public class ProductResponseDto {           // 상품 1개의 전체 정보를 �
         this.regDt = regDt;
         this.myProduct = myProduct;
         this.reported = reported;
+        this.viewCount = viewCount;
     }
 
     public Integer getProductId() {
@@ -98,4 +101,9 @@ public class ProductResponseDto {           // 상품 1개의 전체 정보를 �
     public boolean isReported() {
         return reported;
     }
+
+    public int getViewCount() {
+        return viewCount;
+    }
 }
+
