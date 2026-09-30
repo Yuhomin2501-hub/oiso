@@ -86,6 +86,11 @@
         .detail-favorite-button.active {
             color: #e85a5a;
         }
+
+        #commentList {
+            margin-top: 18px;
+        }
+
     </style>
 </head>
 <body>
@@ -342,10 +347,40 @@
 
                         <div class="info-desc">${escapeHtml(product.productDesc == null || product.productDesc.trim() === '' ? '상품 설명이 없습니다.' : product.productDesc)}</div>
                     </section>
-                </div>
+
+                    <section class="detail-desc-panel">
+                        <div class="detail-section-title-row">
+                            <div>
+                                <h2>댓글</h2>
+                                <p>상품에 대한 댓글을 남길 수 있습니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <textarea
+                                id="commentContent"
+                                class="textarea-field"
+                                placeholder="댓글을 입력하세요"
+                            ></textarea>
+                            </div>
+
+                                <div class="button-row">
+                                    <button
+                                        type="button"
+                                        class="primary-button"
+                                        onclick="registerComment(${product.productId})"
+                                    >
+                                        댓글 등록
+                                    </button>
+                                </div>
+
+                                <div id="commentList"></div>
+                            </section>
+                            </div>
             `;
 
             updateSliderUi();
+            loadCommentList();
         } catch (error) {
             app.innerHTML = renderLoginRequiredBox();
             console.error(error);
@@ -930,6 +965,80 @@
 
         const diffYears = Math.floor(diffMonths / 12);
         return `${diffYears}년 전`;
+    }
+
+    async function loadCommentList() {
+        const response = await fetch(
+            '/comments/list?productId=' + encodeURIComponent(productId)
+        );
+
+        const comments = await response.json();
+
+        const commentList = document.getElementById('commentList');
+
+        if (!commentList) {
+            return;
+        }
+
+        if (comments.length === 0) {
+            commentList.innerHTML = '<p>등록된 댓글이 없습니다.</p>';
+            return;
+        }
+
+        let html = '';
+
+        comments.forEach(comment => {
+            html += `
+            <div class="detail-notice-box">
+                <strong>${escapeHtml(comment.userName)}</strong>
+                <p>${escapeHtml(comment.commentContent)}</p>
+                <span>${formatRelativeTime(comment.regDt)}</span>
+            </div>
+        `;
+        });
+
+        commentList.innerHTML = html;
+    }
+
+    function registerComment(targetProductId) {
+        const commentContentElement = document.getElementById('commentContent');
+
+        if (!commentContentElement) {
+            return;
+        }
+
+        const commentContent = commentContentElement.value.trim();
+
+        if (commentContent === '') {
+            alert('댓글을 입력하세요.');
+            return;
+        }
+
+        fetch(
+            `/comments/register?productId=${encodeURIComponent(targetProductId)}&commentContent=${encodeURIComponent(commentContent)}`,
+            {
+                method: 'POST'
+            }
+        )
+            .then(response => response.text())
+            .then(result => {
+
+                if (result.includes('로그인')) {
+                    alert('로그인 후 이용 가능합니다.');
+                    return;
+                }
+
+                alert(result);
+
+                if (result === '댓글 등록 완료') {
+                    commentContentElement.value = '';
+                    loadCommentList();
+                }
+            })
+            .catch(error => {
+                alert('댓글 등록 중 문제가 발생했습니다.');
+                console.error(error);
+            });
     }
 
     function renderLoginRequiredBox() {
