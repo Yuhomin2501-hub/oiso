@@ -238,6 +238,21 @@
                 favorite = false;
             }
 
+            let blocked = false;
+
+            if (!product.myProduct) {
+                try {
+                    const blockResponse = await fetch(
+                        '/blocks/status?blockedEmail=' + encodeURIComponent(product.userEmail)
+                    );
+
+                    blocked = await blockResponse.json();
+
+                } catch (e) {
+                    blocked = false;
+                }
+            }
+
             currentImageList = Array.isArray(product.productImagePathList) && product.productImagePathList.length > 0
                 ? product.productImagePathList.slice()
                 : [product.productImagePath];
@@ -282,12 +297,23 @@
         ${favorite ? '♥' : '♡'}
     </button>
 
+     ${!product.myProduct ? `
+        <button
+            type="button"
+            class="secondary-button"
+            onclick="toggleUserBlock('${product.userEmail}', ${blocked}, this)"
+        >
+            ${blocked ? '차단 취소' : '사용자 차단'}
+        </button>
+    ` : ''}
+
     ${renderDetailStatusBadge(
                 product.productStatus,
                 product.reported === true
             )}
 
 </div>
+
                     </div>
 
                     ${renderReportedNotice(product.reported === true)}
@@ -435,6 +461,56 @@
                 console.error(error);
             });
     }
+
+
+
+
+    // ★ 바로 여기에 추가
+    function toggleUserBlock(blockedEmail, blocked, button) {
+
+        const url = blocked
+            ? '/blocks/delete?blockedEmail=' + encodeURIComponent(blockedEmail)
+            : '/blocks/add?blockedEmail=' + encodeURIComponent(blockedEmail);
+
+        fetch(url, {
+            method: 'POST'
+        })
+            .then(response => response.text())
+            .then(result => {
+
+                if (result.includes('로그인')) {
+                    alert('로그인 후 이용 가능합니다.');
+                    return;
+                }
+
+                alert(result);
+
+                if (result === '사용자 차단 완료') {
+                    button.innerText = '차단 취소';
+
+                    button.setAttribute(
+                        'onclick',
+                        `toggleUserBlock('${blockedEmail}', true, this)`
+                    );
+                }
+
+                if (result === '사용자 차단 취소 완료') {
+                    button.innerText = '사용자 차단';
+
+                    button.setAttribute(
+                        'onclick',
+                        `toggleUserBlock('${blockedEmail}', false, this)`
+                    );
+                }
+            })
+            .catch(error => {
+                alert('사용자 차단 처리 중 문제가 발생했습니다.');
+                console.error(error);
+            });
+    }
+
+
+
 
     function renderReportedNotice(reported) {
         if (!reported) {

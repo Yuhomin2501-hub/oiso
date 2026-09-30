@@ -8,6 +8,7 @@ import com.example.oiso.product.entity.Product;
 import com.example.oiso.product.repository.ProductRepository;
 import com.example.oiso.user.entity.User;
 import com.example.oiso.user.repository.UserRepository;
+import com.example.oiso.user.repository.UserBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class ExchangeService {
     private final ProductRepository productRepository;  // 교환 대상 상품과 신청자 상품 조회/상태 변경에 사용
     private final ChatRoomService chatRoomService; // 교환 수락 시 채팅방 생성, 취소 시 채팅방 삭제에 사용
     private final UserRepository userRepository;  // 신청자 이름 조회에 사용
+    private final UserBlockRepository userBlockRepository;
 
     // 교환 신청을 등록하는 메서드
     // loginUserEmail: 현재 로그인한 사용자 이메일
@@ -38,6 +40,13 @@ public class ExchangeService {
 
         if (targetProduct.getUserEmail().equals(loginUserEmail)) {  // 자기 자신의 상품에는 교환 신청을 할 수 없도록 막음
             throw new IllegalArgumentException("본인 상품에는 교환 신청할 수 없습니다.");
+        }
+
+        if (userBlockRepository.existsByBlockerEmailAndBlockedEmail(
+                targetProduct.getUserEmail(),
+                loginUserEmail)) {
+
+            throw new IllegalArgumentException("상대방이 회원님을 차단한 상태입니다.");
         }
 
         if (!requesterProduct.getUserEmail().equals(loginUserEmail)) {  // 신청자가 제시한 상품이 실제 로그인한 사용자의 상품인지 검증
