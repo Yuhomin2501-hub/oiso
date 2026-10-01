@@ -36,6 +36,25 @@ public class ExchangeController {
         }
     }
 
+    @GetMapping("/exchanges/withdraw")
+    public String withdrawExchange(@RequestParam Integer exchangeId,
+                                   HttpSession session) {
+
+        String loginUserEmail =
+                (String) session.getAttribute("loginUserEmail");
+
+        if (loginUserEmail == null) {
+            return "로그인이 필요합니다.";
+        }
+
+        try {
+            exchangeService.withdrawExchange(exchangeId, loginUserEmail);
+            return "교환 신청 철회 완료";
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
+        }
+    }
+
     @GetMapping("/exchanges/received")      // 내가 받은 교환 신청 목록 조회 API
     public Object getReceivedExchangeList(HttpSession session) {        // 문자열 또는 교환 목록을 반환하기 위해 Object 사용
         String loginUserEmail = (String) session.getAttribute("loginUserEmail"); // 세션에서 로그인 사용자 이메일 조회

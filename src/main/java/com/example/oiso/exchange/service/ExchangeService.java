@@ -208,6 +208,24 @@ public class ExchangeService {
                 .toList();
     }
 
+    // 내가 보낸 대기중 교환 신청 철회
+    public void withdrawExchange(Integer exchangeId, String loginUserEmail) {
+
+        Exchange exchange = exchangeRepository.findById(exchangeId)
+                .orElseThrow(() -> new IllegalArgumentException("교환 신청이 존재하지 않습니다."));
+
+        if (!exchange.getRequesterEmail().equals(loginUserEmail)) {
+            throw new IllegalArgumentException("본인이 보낸 교환 신청만 철회할 수 있습니다.");
+        }
+
+        if (!"대기중".equals(exchange.getExchangeStatus())) {
+            throw new IllegalArgumentException("대기중인 교환 신청만 철회할 수 있습니다.");
+        }
+
+        exchange.updateExchangeStatus("취소됨");
+        exchangeRepository.save(exchange);
+    }
+
     // 받은 교환 신청을 수락 또는 거절하는 메서드
     public void updateExchangeStatus(Integer exchangeId, String loginUserEmail, String exchangeStatus) {
 

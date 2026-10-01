@@ -28,7 +28,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, #ffd0a1 0%, #ffad6b 100%);
+            background: linear-gradient(180deg, #ffe7cf 0%, #ffd2a8 100%);
             border: 1px solid #e9823a;
             color: #ffffff;
             font-size: 34px;
@@ -205,10 +205,14 @@
                 data.forEach(exchange => {
                     let actionButtons = '';
 
-                    if (exchange.exchangeStatus === '수락') {
+                    if (exchange.exchangeStatus === '대기중') {
                         actionButtons = `
-                            <button class="secondary-button" onclick="cancelExchange(${exchange.exchangeId})">거래취소</button>
-                        `;
+        <button class="secondary-button" onclick="withdrawExchange(${exchange.exchangeId})">신청 철회</button>
+    `;
+                    } else if (exchange.exchangeStatus === '수락') {
+                        actionButtons = `
+        <button class="secondary-button" onclick="cancelExchange(${exchange.exchangeId})">거래취소</button>
+    `;
                     }
 
                     const exchangeCardClass = getExchangeCardClass(exchange.exchangeStatus);
@@ -331,6 +335,27 @@
                 </div>
             </div>
         `;
+    }
+
+    function withdrawExchange(exchangeId) {
+
+        if (!confirm('교환 신청을 철회하시겠습니까?')) {
+            return;
+        }
+
+        fetch(`/exchanges/withdraw?exchangeId=${encodeURIComponent(exchangeId)}`)
+            .then(response => response.text())
+            .then(result => {
+                alert(result);
+
+                if (result === '교환 신청 철회 완료') {
+                    loadExchangeList();
+                }
+            })
+            .catch(error => {
+                alert('교환 신청 철회 중 문제가 발생했습니다.');
+                console.error(error);
+            });
     }
 
     function cancelExchange(exchangeId) {
