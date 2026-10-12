@@ -113,6 +113,24 @@
     line-height: 1.6;
 }
 
+.product-card-bottom-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 6px;
+    color: #90715c;
+    font-size: 14px;
+}
+
+.product-view-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
 .status-badge {
     display: inline-flex;
     align-items: center;

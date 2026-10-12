@@ -4,11 +4,15 @@
 
 body {
     margin: 0;
+    min-height: 100vh;
+
     font-family: "Pretendard", "Malgun Gothic", sans-serif;
+
     background:
             radial-gradient(circle at top left, rgba(242, 183, 126, 0.84), transparent 30%),
             radial-gradient(circle at right 12% bottom 8%, rgba(232, 152, 86, 0.62), transparent 32%),
             linear-gradient(180deg, #f8e5d3 0%, #efd3bb 52%, #dfb994 100%);
+
     color: #594132;
 }
 
@@ -278,14 +282,22 @@ a {
     height: 44px;
     padding: 0;
     border-radius: 14px;
-    border: 1px solid #e8ccb5;
-    background: linear-gradient(180deg, #fffdfb 0%, #fdf0e1 100%);
-    color: #855736;
+
+    border: 1px solid #efb3b3;
+    background: linear-gradient(180deg, #fff5f5 0%, #ffdede 100%);
+    color: #c74a4a;
+
     font-size: 22px;
     cursor: pointer;
+
     box-shadow:
-            5px 8px 16px rgba(178, 132, 95, 0.14),
+            5px 8px 16px rgba(199, 74, 74, 0.12),
             inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.drawer-close:hover {
+    background: linear-gradient(180deg, #fff8f8 0%, #ffcfcf 100%);
+    color: #a93232;
 }
 
 .drawer-title,
@@ -338,6 +350,11 @@ a {
 }
 
 .hamburger-button {
+
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    z-index: 1000;
     width: 58px;
     height: 58px;
     padding: 0;
