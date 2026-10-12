@@ -255,9 +255,12 @@
                     ${escapeHtml(product.category == null ? '' : product.category)}
                 </div>
 
-                <div style="margin-top:6px; color:#90715c; font-size:14px;">
-                    ${formatRelativeTime(product.regDt)}
-                </div>
+                <div class="product-card-bottom-meta">
+    <span>${formatRelativeTime(product.regDt)}</span>
+    <span class="product-view-count">
+        👁 ${product.viewCount == null ? 0 : product.viewCount}
+    </span>
+</div>
 
             </a>
 
